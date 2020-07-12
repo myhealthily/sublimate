@@ -12,8 +12,9 @@ public final class Sublimate {
 }
 
 public extension Sublimate {
-    var client: Client { rq.client }
-    var content: ContentContainer { rq.content }
-    var auth: Request.Authentication { rq.auth }
-    var eventLoop: EventLoop { rq.eventLoop }
+    @inlinable var client: Client { rq.client }
+    @inlinable var content: ContentContainer { rq.content }
+    @inlinable var auth: Request.Authentication { rq.auth }
+    @inlinable var eventLoop: EventLoop { rq.eventLoop }
+    @inlinable var parameters: Parameters { rq.parameters }
 }
