@@ -19,7 +19,7 @@ private Response: Encodable {
     let bar: Bool
 }
 
-let route = sublimate<User> { rq, user -> Response in
+let route = sublimate { rq -> Response in
     guard let parameter = rq.parameters.get("id") else {
         throw Abort(.badRequest)
     }
@@ -28,6 +28,8 @@ let route = sublimate<User> { rq, user -> Response in
         .filter(\.$foo == parameter)
         .firstOrAbort()
     // ^^ `foo` is the model object, not a future
+
+    print(foo.baz)
 
     return Foo(foo: foo, bar: Bool.random())
 }
@@ -58,6 +60,7 @@ let route = sublimate<User> { rq, user -> [Response] in
         guard … else { throw … }
     }
     
+    // `Sequence.map` not `EventLoopFuture.map`
     return foos.map {
         try Repsonse(foo: $0.foo, bar $0.bar == .bar)
     }
