@@ -27,6 +27,12 @@ public extension Model {
     }
 
     @discardableResult
+    func create(on subl: Sublimate) throws -> Self {
+        try create(on: subl.db).wait()
+        return self
+    }
+
+    @discardableResult
     func update(on subl: Sublimate) throws -> Self {
         try update(on: subl.db).wait()
         return self
