@@ -26,14 +26,20 @@ public extension Model {
         }
     }
 
-    func delete(on subl: Sublimate) throws -> Void {
-        return try delete(on: subl.db).wait()
+    @discardableResult
+    func update(on subl: Sublimate) throws -> Self {
+        try update(on: subl.db).wait()
+        return self
     }
 
     @discardableResult
     func save(on subl: Sublimate) throws -> Self {
         try save(on: subl.db).wait()
         return self
+    }
+
+    func delete(on subl: Sublimate) throws {
+        try delete(on: subl.db).wait()
     }
 
     static func findOrAbort(_ id: IDValue, on subl: Sublimate, file: String = #file, line: UInt = #line) throws -> Self {
