@@ -2,21 +2,21 @@
 
 A developer-experience (DX) improvement layer for Vapor 4.
 
-# Rational
+## Rational
 
-Swift is a remarkably safe language, predominantly because of its wonderful syntatic features.
+Swift is a remarkably safe language, predominantly because of its wonderful syntactic features.
 However Vapor is built on NIO and NIO uses *futures*. Working with futures sucks.
 
 Sublimate makes using Vapor procedural, like normal code.
 
-## Pain Points Removed
+### Pain Points Removed
 
 * Bored with Swift complaining everything is ambiguous?
     > You will get 90% less of this.
-* Finding doing (basic) logic tedious or untennable with futures? 
+* Finding doing (basic) logic tedious or untenable with futures?
     > You can write normal Swift with Sublimate
 
-# Comparison
+## Comparison
 
 ```swift
 func route(on rq: Request) -> EventLoopFuture<[String]> {
@@ -49,7 +49,7 @@ let route = sublimate { rq -> [String] in
 > † Our find functions take optional IDs.\
 > ‡ We provide convenience functions to keep your code tight; here you don’t have to call `query()` first.
 
-# Examples
+## Examples
 
 ```swift
 import Sublimate
@@ -100,31 +100,31 @@ let route = sublimate { (rq, user: User) -> [Response] in
 
     // more easily use great Swift features like guard
     guard foos.count >= 2 else { throw … }
-    
+
     // more easily use `for` loops and everything else too
     for foo in foos where foo.baz == .baz {
         guard … else { throw … }
     }
-    
+
     // `Sequence.map` not `EventLoopFuture.map`
     return foos.map {
-        try Repsonse(foo: $0.foo, bar $0.bar == .bar)
+        try Response(foo: $0.foo, bar $0.bar == .bar)
     }
 }
 
 app.routes.get("foo", use: route)
 ```
 
-# Usage
+## Usage
 
 We have tried to provide sublimation for everything Vapor and Fluent provide, so generally you should
 find it just works.
 
 ## Transactions
 
-We provide `transaction` to have an entire route in a transaction, usage is the same as `sublimate()`.
+We provide `transaction()` to have an entire route in a transaction, usage is the same as `sublimate()`.
 
-# Installation
+## Installation
 
 ```swift
 package.dependencies.append(.package(
@@ -133,30 +133,30 @@ package.dependencies.append(.package(
 ))
 ```
 
-# How it works
+## How it works
 
 Sublimate is a small wrapper on top of a `Request` and `Database` pair that mirrors most functions
 and calls `wait()`.
 
 This works because we also spawn a separate thread to `wait()` within.
 
-## Why This is Fine
+### Why This is Fine
 
 We found that mostly you have to fetch one thing at a time when doing Vapor dev anyway.
 
 You *still can* fire off multiple requests simultaneously if you need to
-(query on the `rq` property of your Sublimate object then use our flatten function).
+(query on the `rq` property of your Sublimate object then use our `flatten()` function).
 
-## Thread‑Safety
+### Thread‑Safety
 
 Sublimate is as thread-safe as Vapor; see their guidelines.
 
-## Caveats
+### Caveats
 
 * This will cause a small performance hit to your server.
-* Having multiple in flight database requests simultaneously becomes more tedious (but is still possible).
+* Having multiple in-flight database requests simultaneously becomes more tedious (but is still possible).
 
-# Dependencies
+## Dependencies
 
 * Vapor 4 (for `Content`)
 * Fluent (for `var Request.db`) †
@@ -166,7 +166,7 @@ Sublimate is as thread-safe as Vapor; see their guidelines.
 
 > † We cannot just depend on FluentKit due to the need for `rq.db`.
 
-# Suggested Usage
+## Suggested Usage
 
 * We suggest a separate module for your routes.
 * We don’t suggest controllers, but using controllers should still be fine, if not open a ticket and we’ll look into what we can do to improve this usage.

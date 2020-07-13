@@ -16,7 +16,7 @@ public extension EventLoop {
 }
 
 public extension EventLoopFuture {
-    /// better readability in our “syncronous” world
+    /// better readability in our “synchronous” world
     /// - Note: will crash your app if you didn’t `wait()` first or use a Sublimate method to get the future
     var value: Value {
         return try! wait()
