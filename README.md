@@ -25,7 +25,7 @@ func route(on rq: Request) -> EventLoopFuture<[String]> {
     }
     return Group.find(groupID, on: rq)
         .unwrap(or: Abort(.notFound))
-        .flatMap { group -> EventLoopFuture<Association> in
+        .flatMap { group -> EventLoopFuture<[Association]> in
             guard group.enrolled else {
                 return rq.eventLoop.makeFailedFuture(Abort(.notAcceptable))
             }
@@ -46,7 +46,7 @@ let route = sublimate { rq -> [String] in
 }
 ```
 
-> † Our find functions take optional IDs.
+> † Our find functions take optional IDs.\
 > ‡ We provide convenience functions to keep your code tight; here you don’t have to call `query()` first.
 
 # Examples
@@ -120,6 +120,19 @@ app.routes.get("foo", use: route)
 We have tried to provide sublimation for everything Vapor and Fluent provide, so generally you should
 find it just works.
 
+## Transactions
+
+We provide `transaction` to have an entire route in a transaction, usage is the same as `sublimate()`.
+
+# Installation
+
+```swift
+package.dependencies.append(.package(
+    url: "https://github.com/candor/sublimate.git",
+    from: "0.4.0"
+))
+```
+
 # How it works
 
 Sublimate is a small wrapper on top of a `Request` and `Database` pair that mirrors most functions
@@ -127,14 +140,18 @@ and calls `wait()`.
 
 This works because we also spawn a separate thread to `wait()` within.
 
-## Why this is mostly fine
+## Why This is Fine
 
 We found that mostly you have to fetch one thing at a time when doing Vapor dev anyway.
 
 You *still can* fire off multiple requests simultaneously if you need to
 (query on the `rq` property of your Sublimate object then use our flatten function).
 
-# Caveats
+## Thread‑Safety
+
+Sublimate is as thread-safe as Vapor; see their guidelines.
+
+## Caveats
 
 * This will cause a small performance hit to your server.
 * Having multiple in flight database requests simultaneously becomes more tedious (but is still possible).
@@ -142,8 +159,10 @@ You *still can* fire off multiple requests simultaneously if you need to
 # Dependencies
 
 * Vapor 4 (for `Content`)
-* Fluent (for `var Request.db`)†
+* Fluent (for `var Request.db`) †
 * SQLKit (for `SQLDatabase.raw`, SQLKit is in fact a dependency of Fluent *anyway*)
+* Swift 5.2 (due to Vapor 4)
+* macOS 10.15 (Catalina), (due to Vapor 4), or any Swift 5.2 supported Linux
 
 > † We cannot just depend on FluentKit due to the need for `rq.db`.
 
