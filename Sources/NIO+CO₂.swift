@@ -26,14 +26,14 @@ public extension EventLoopFuture {
 extension Collection {
     /// Flattens an array of EventLoopFutures into a EventLoopFuture with an array of results.
     /// - note: the order of the results will match the order of the EventLoopFutures in the input array.
-    public func flatten<T>(on subl: Sublimate) throws -> [T] where Element == EventLoopFuture<T> {
+    public func flatten<T>(on subl: CO₂) throws -> [T] where Element == EventLoopFuture<T> {
         return try EventLoopFuture.whenAllSucceed(Array(self), on: subl.eventLoop).wait()
     }
 }
 
 extension Collection where Element == EventLoopFuture<Void> {
 /// Flattens an array of void EventLoopFutures into a single one.
-    public func flatten(on subl: Sublimate) throws {
+    public func flatten(on subl: CO₂) throws {
         _ = try EventLoopFuture.whenAllSucceed(Array(self), on: subl.eventLoop).wait()
     }
 }

@@ -1,7 +1,7 @@
 import protocol FluentKit.Database
 import Vapor
 
-public final class Sublimate {
+public final class CO₂ {
     public let db: Database
     public let rq: Request
 
@@ -11,7 +11,7 @@ public final class Sublimate {
     }
 }
 
-public extension Sublimate {
+public extension CO₂ {
     @inlinable var client: Client { rq.client }
     @inlinable var content: ContentContainer { rq.content }
     @inlinable var auth: Request.Authentication { rq.auth }

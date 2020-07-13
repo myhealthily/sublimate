@@ -24,7 +24,7 @@ public class SublimateRawBuilder {
     }
 }
 
-public extension Sublimate {
+public extension CO₂ {
     func raw(sql: SQLQueryString) throws -> SublimateRawBuilder {
         guard let db = rq.db as? SQLDatabase else {
             throw Abort(.internalServerError, reason: "Cannot do raw SQL queries on non-SQLDatabase")
