@@ -2,7 +2,7 @@
 
 A developer-experience (DX) improvement layer for Vapor 4.
 
-## Rational
+## Rationale
 
 Swift is a remarkably safe language, predominantly because of its wonderful syntactic features.
 However Vapor is built on NIO and NIO uses *futures*. Working with futures sucks.
