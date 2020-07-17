@@ -3,13 +3,11 @@ import struct Vapor.Abort
 import SQLKit
 
 public class SublimateRawBuilder {
-    init(builder: SQLRawBuilder, rq: Request) {
+    init(builder: SQLRawBuilder) {
         self.builder = builder
-        self.rq = rq
     }
 
     let builder: SQLRawBuilder
-    let rq: Request
 
     public func first<T: Decodable>(decoding: T.Type) throws -> T? {
         try builder.first(decoding: decoding).wait()
@@ -24,11 +22,11 @@ public class SublimateRawBuilder {
     }
 }
 
-public extension CO₂ {
+public extension CO₂DB {
     func raw(sql: SQLQueryString) throws -> SublimateRawBuilder {
-        guard let db = rq.db as? SQLDatabase else {
+        guard let db = db as? SQLDatabase else {
             throw Abort(.internalServerError, reason: "Cannot do raw SQL queries on non-SQLDatabase")
         }
-        return SublimateRawBuilder(builder: db.raw(sql), rq: rq)
+        return SublimateRawBuilder(builder: db.raw(sql))
     }
 }
