@@ -1,3 +1,4 @@
+import Dispatch
 import Fluent
 import SQLKit
 
@@ -22,7 +23,7 @@ private struct Wrapper: Migration {
 
     func prepare(on db: Database) -> EventLoopFuture<Void> {
         db.transaction { db in
-            db.eventLoop.dispatch {
+            DispatchQueue.global().async(on: db.eventLoop) {
                 try self.sm.prepare(on: .init(db: db))
             }
         }
@@ -30,7 +31,7 @@ private struct Wrapper: Migration {
 
     func revert(on db: Database) -> EventLoopFuture<Void> {
         db.transaction { db in
-            db.eventLoop.dispatch {
+            DispatchQueue.global().async(on: db.eventLoop) {
                 try self.sm.revert(on: .init(db: db))
             }
         }
