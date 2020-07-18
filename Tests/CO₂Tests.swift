@@ -27,6 +27,16 @@ final class CO₂Tests: XCTestCase {
         }
     }
 
+    func testHTTPResponse() throws {
+        app.routes.get("foo", use: sublimate { rq in
+            Response(status: .ok)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
     func testVoid() throws {
         var foo = false
 

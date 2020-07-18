@@ -2,31 +2,48 @@ import class Vapor.Request
 import struct Vapor.Abort
 import SQLKit
 
-public class SublimateRawBuilder {
-    init(builder: SQLRawBuilder) {
-        self.builder = builder
+/// Sublimate utility object wrapping a SQLKit `SQLRawBuilder` object.
+public final class SublimateRawBuilder {
+    fileprivate init(kernel: SQLRawBuilder) {
+        self.kernel = kernel
     }
 
-    let builder: SQLRawBuilder
+    // `public` so we can be inlinable
+    public let kernel: SQLRawBuilder
 
+    @inlinable
     public func first<T: Decodable>(decoding: T.Type) throws -> T? {
-        try builder.first(decoding: decoding).wait()
+        try kernel.first(decoding: decoding).wait()
     }
 
+    /// Collects the first raw output and returns it.
+    @inlinable
+    public func first() throws -> SQLRow? {
+        try kernel.first().wait()
+    }
+
+    @inlinable
     public func all<T: Decodable>(decoding: T.Type) throws -> [T] {
-        try builder.all(decoding: T.self).wait()
+        try kernel.all(decoding: T.self).wait()
     }
 
+    /// Collects all raw output into an array and returns it.
+    @inlinable
+    public func all() throws -> [SQLRow] {
+        try kernel.all().wait()
+    }
+
+    @inlinable
     public func run() throws {
-        try builder.run().wait()
+        try kernel.run().wait()
     }
 }
 
 public extension CO₂DB {
-    func raw(sql: SQLQueryString) throws -> SublimateRawBuilder {
+    func raw(sql: SQLQueryString, file: String = #file, line: UInt = #line) throws -> SublimateRawBuilder {
         guard let db = db as? SQLDatabase else {
-            throw Abort(.internalServerError, reason: "Cannot do raw SQL queries on non-SQLDatabase")
+            throw Abort(.internalServerError, reason: "Cannot do raw SQL queries on non-SQLDatabase", file: file, line: line)
         }
-        return SublimateRawBuilder(builder: db.raw(sql))
+        return SublimateRawBuilder(kernel: db.raw(sql))
     }
 }

@@ -18,3 +18,5 @@ jobs:
     - name: Test
       run: swift test $FLAGS --enable-code-coverage
     - uses: codecov/codecov-action@v1
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
