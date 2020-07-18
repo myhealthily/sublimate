@@ -46,7 +46,10 @@ let route = sublimate { rq -> [String] in
 }
 ```
 
-We even provide `SublimateMigration`, which wraps your regular migration in a Sublimate+transaction layer for more declarative syntax.
+> † Our find functions take optional IDs.\
+> ‡ We provide convenience functions to keep your code tight; here you don’t have to call `query()` first.
+
+We also provide `SublimateMigration`, which wraps your regular migration in a Sublimate+transaction layer for a more declarative syntax.
 
 ```swift
 import Fluent
@@ -56,9 +59,9 @@ public struct RenameMultipleItems: Migration {
     public func prepare(on db: Database) -> EventLoopFuture<Void> {
         db.transaction { db in
             let tx = (db as! SQLDatabase)
-            return tx.raw("UPDATE payment_info SET \"paymentStatus\" = 'noPaymentMethod' WHERE \"paymentID\" IS NULL").run().flatMap {
-                tx.raw("UPDATE payment_info SET \"paymentStatus\" = 'paymentMethodReceived' WHERE \"paymentID\" IS NOT NULL AND \"paymentStatus\" = 'unpaid'").run().flatMap {
-                    tx.raw("UPDATE payment_info SET \"paymentStatus\" = 'errored' WHERE \"paymentStatus\" = 'error'").run()
+            return tx.raw(#"UPDATE payment_info SET "paymentStatus" = 'noPaymentMethod' WHERE "paymentID" IS NULL"#).run().flatMap {
+                tx.raw(#"UPDATE payment_info SET "paymentStatus" = 'paymentMethodReceived' WHERE "paymentID" IS NOT NULL AND "paymentStatus" = 'unpaid'"#).run().flatMap {
+                    tx.raw(#"UPDATE payment_info SET "paymentStatus" = 'errored' WHERE "paymentStatus" = 'error'"#).run()
                 }
             }
         }
@@ -66,10 +69,10 @@ public struct RenameMultipleItems: Migration {
 
     public func revert(on db: Database) -> EventLoopFuture<Void> {
         db.transaction { db in
-        let tx = (db as! SQLDatabase)
-        return tx.raw("UPDATE payment_info SET \"paymentStatus\" = 'unpaid' WHERE \"paymentID\" IS NULL").run().flatMap {
-                tx.raw("UPDATE payment_info SET \"paymentStatus\" = 'unpaid' WHERE \"paymentID\" IS NOT NULL AND \"paymentStatus\" = 'paymentMethodReceived'").run().flatMap {
-                    tx.raw("UPDATE payment_info SET \"paymentStatus\" = 'error' WHERE \"paymentStatus\" = 'errored'").run()
+            let tx = (db as! SQLDatabase)
+            return tx.raw(#"UPDATE payment_info SET "paymentStatus" = 'unpaid' WHERE "paymentID" IS NULL"#).run().flatMap {
+                tx.raw(#"UPDATE payment_info SET "paymentStatus" = 'unpaid' WHERE "paymentID" IS NOT NULL AND "paymentStatus" = 'paymentMethodReceived'"#).run().flatMap {
+                    tx.raw(#"UPDATE payment_info SET "paymentStatus" = 'error' WHERE "paymentStatus" = 'errored'"#).run()
                 }
             }
         }
@@ -84,22 +87,19 @@ import Sublimate
 import Fluent
 
 public struct OnlyHaveOnePaymentStatusType: SublimateMigration {
-    public func prepare(on db: CO₂DB) throws -> Void {
-        try db.raw(sql: "UPDATE payment_info SET \"paymentStatus\" = 'noPaymentMethod' WHERE \"paymentID\" IS NULL").run()
-        try db.raw(sql: "UPDATE payment_info SET \"paymentStatus\" = 'paymentMethodReceived' WHERE \"paymentID\" IS NOT NULL AND \"paymentStatus\" = 'unpaid'").run()
-        try db.raw(sql: "UPDATE payment_info SET \"paymentStatus\" = 'errored' WHERE \"paymentStatus\" = 'error'").run()
+    public func prepare(on db: CO₂DB) throws {
+        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'noPaymentMethod' WHERE "paymentID" IS NULL"#).run()
+        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'paymentMethodReceived' WHERE "paymentID" IS NOT NULL AND "paymentStatus" = 'unpaid'"#).run()
+        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'errored' WHERE "paymentStatus" = 'error'"#).run()
     }
 
-    public func revert(on db: CO₂DB) throws -> Void {
-        try db.raw(sql: "UPDATE payment_info SET \"paymentStatus\" = 'unpaid' WHERE \"paymentID\" IS NULL").run()
-        try db.raw(sql: "UPDATE payment_info SET \"paymentStatus\" = 'unpaid' WHERE \"paymentID\" IS NOT NULL AND \"paymentStatus\" = 'paymentMethodReceived'").run()
-        try db.raw(sql: "UPDATE payment_info SET \"paymentStatus\" = 'error' WHERE \"paymentStatus\" = 'errored'").run()
+    public func revert(on db: CO₂DB) throws {
+        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'unpaid' WHERE "paymentID" IS NULL"#).run()
+        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'unpaid' WHERE "paymentID" IS NOT NULL AND "paymentStatus" = 'paymentMethodReceived'"#).run()
+        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'error' WHERE "paymentStatus" = 'errored'"#).run()
     }
 }
 ```
-
-> † Our find functions take optional IDs.\
-> ‡ We provide convenience functions to keep your code tight; here you don’t have to call `query()` first.
 
 ## Examples
 
