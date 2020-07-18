@@ -60,7 +60,13 @@ public func sublimate<User: Authenticatable>(use closure: @escaping (CO₂, User
     }
 }
 
-public func transaction<User: Authenticatable>(use closure: @escaping (CO₂, User) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
+public extension CO₂DB {
+    enum RouteOptions {
+        case transaction
+    }
+}
+
+public func sublimate<User: Authenticatable>(in: CO₂DB.RouteOptions, use closure: @escaping (CO₂, User) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
     return { rq in
         let user = try rq.auth.require(User.self)
         return rq.db.transaction { db in
@@ -72,7 +78,7 @@ public func transaction<User: Authenticatable>(use closure: @escaping (CO₂, Us
     }
 }
 
-public func transaction(use closure: @escaping (CO₂) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
+public func sublimate(in: CO₂DB.RouteOptions, use closure: @escaping (CO₂) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
     return { rq in
         rq.db.transaction { db in
             DispatchQueue.global().async(on: rq.eventLoop) {
@@ -83,7 +89,7 @@ public func transaction(use closure: @escaping (CO₂) throws -> Void) -> (Reque
     }
 }
 
-public func transaction<E: ResponseEncodable>(use closure: @escaping (CO₂) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate<E: ResponseEncodable>(in: CO₂DB.RouteOptions, use closure: @escaping (CO₂) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         return rq.db.transaction { db in
             DispatchQueue.global().async(on: rq.eventLoop) {
@@ -93,7 +99,7 @@ public func transaction<E: ResponseEncodable>(use closure: @escaping (CO₂) thr
     }
 }
 
-public func transaction<E: ResponseEncodable, User: Authenticatable>(use closure: @escaping (CO₂, User) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate<E: ResponseEncodable, User: Authenticatable>(in: CO₂DB.RouteOptions, use closure: @escaping (CO₂, User) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         let user = try rq.auth.require(User.self)
         return rq.db.transaction { db in

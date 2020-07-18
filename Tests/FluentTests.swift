@@ -3,7 +3,7 @@ import XCTFluent
 import Fluent
 import XCTest
 
-final class SublimateTests: XCTestCase {
+final class FluentTests: XCTestCase {
     var db: ArrayTestDatabase!
 
     override func setUp() {

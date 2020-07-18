@@ -6,7 +6,7 @@ import struct Vapor.Abort
 
 public extension Vapor.Request {
     /// Not recommended, but can ease porting
-    func sublimate<T>(use closure: @escaping (CO₂) throws -> T) -> EventLoopFuture<T> {
+    func sublimate<Value>(use closure: @escaping (CO₂) throws -> Value) -> EventLoopFuture<Value> {
         DispatchQueue.global().async(on: eventLoop) {
             guard !self.db.inTransaction else {
                 throw Abort(.internalServerError, reason: "Using rq.db from inside a transaction will deadlock Vapor")
@@ -18,7 +18,8 @@ public extension Vapor.Request {
 
 public extension FluentKit.Database {
     /// Not recommended, but can ease porting
-    func sublimate<T>(use closure: @escaping (CO₂DB) throws -> T) -> EventLoopFuture<T> {
+    /// Note doesn’t seem to work for XCTFluent’s TestDatabase
+    func sublimate<Value>(use closure: @escaping (CO₂DB) throws -> Value) -> EventLoopFuture<Value> {
         DispatchQueue.global().async(on: eventLoop) {
             guard !self.inTransaction else {
                 throw Abort(.internalServerError, reason: "Using rq.db from inside a transaction will deadlock Vapor")

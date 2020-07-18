@@ -2,8 +2,8 @@ import class Dispatch.DispatchQueue
 import NIO
 
 public extension DispatchQueue {
-    func async<T>(on eventLoop: EventLoop, use closure: @escaping () throws -> T) -> EventLoopFuture<T> {
-        let promise = eventLoop.makePromise(of: T.self)
+    func async<Value>(on eventLoop: EventLoop, use closure: @escaping () throws -> Value) -> EventLoopFuture<Value> {
+        let promise = eventLoop.makePromise(of: Value.self)
         async {
             do {
                 promise.succeed(try closure())
@@ -15,25 +15,18 @@ public extension DispatchQueue {
     }
 }
 
-public extension EventLoopFuture {
-    /// better readability in our “synchronous” world
-    /// - Note: will crash your app if you didn’t `wait()` first or use a Sublimate method to get the future
-    var value: Value {
-        return try! wait()
-    }
-}
-
 extension Collection {
-    /// Flattens an array of EventLoopFutures into a EventLoopFuture with an array of results.
-    /// - note: the order of the results will match the order of the EventLoopFutures in the input array.
-    public func flatten<T>(on subl: CO₂DB) throws -> [T] where Element == EventLoopFuture<T> {
-        return try EventLoopFuture.whenAllSucceed(Array(self), on: subl.eventLoop).wait()
+    /// Waits on a `Collection` of `EventLoopFuture` returning `Array<EventLoopFuture.Value>`
+    /// - Note: the order of the results will match the order of the EventLoopFutures in the input `Collection`.
+    /// - Note: They must be the same type, a strategy for waiting on mixed futures is to `Void` them all and then work with the original futures
+    public func flatten<Value>(on db: CO₂DB) throws -> [Value] where Element == EventLoopFuture<Value> {
+        return try EventLoopFuture.whenAllSucceed(Array(self), on: db.eventLoop).wait()
     }
 }
 
 extension Collection where Element == EventLoopFuture<Void> {
-/// Flattens an array of void EventLoopFutures into a single one.
-    public func flatten(on subl: CO₂DB) throws {
-        _ = try EventLoopFuture.whenAllSucceed(Array(self), on: subl.eventLoop).wait()
+    /// Waits on a `Collection` of `EventLoopFuture<Void>`
+    public func flatten(on db: CO₂DB) throws {
+        _ = try EventLoopFuture.whenAllSucceed(Array(self), on: db.eventLoop).wait()
     }
 }

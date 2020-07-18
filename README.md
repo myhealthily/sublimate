@@ -174,7 +174,7 @@ find it just works.
 
 ## Transactions
 
-We provide `transaction()` to have an entire route in a transaction, usage is the same as `sublimate()`.
+We provide `sublimate(in: .transaction, use: myRoute)` to have an entire route in a transaction.
 
 ## Installation
 
