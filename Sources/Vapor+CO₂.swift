@@ -1,12 +1,29 @@
-import Vapor
+import class Dispatch.DispatchQueue
+import protocol FluentKit.Database
+import class NIO.EventLoopFuture
+import class Vapor.Request
+import struct Vapor.Abort
 
-public extension Request {
+public extension Vapor.Request {
+    /// Not recommended, but can ease porting
     func sublimate<T>(use closure: @escaping (CO₂) throws -> T) -> EventLoopFuture<T> {
-        eventLoop.dispatch {
+        DispatchQueue.global().async(on: eventLoop) {
             guard !self.db.inTransaction else {
                 throw Abort(.internalServerError, reason: "Using rq.db from inside a transaction will deadlock Vapor")
             }
             return try closure(CO₂(rq: self, db: self.db))
+        }
+    }
+}
+
+public extension FluentKit.Database {
+    /// Not recommended, but can ease porting
+    func sublimate<T>(use closure: @escaping (CO₂DB) throws -> T) -> EventLoopFuture<T> {
+        DispatchQueue.global().async(on: eventLoop) {
+            guard !self.inTransaction else {
+                throw Abort(.internalServerError, reason: "Using rq.db from inside a transaction will deadlock Vapor")
+            }
+            return try closure(CO₂DB(db: self))
         }
     }
 }

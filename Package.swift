@@ -2,21 +2,24 @@
 
 import PackageDescription
 
+let name = "Sublimate"
+
 let package = Package(
-    name: "Sublimate",
+    name: name,
     products: [
         .library(
-            name: "Sublimate",
-            targets: ["Sublimate"]),
+            name: name,
+            targets: [name]),
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.3.0"),
         .package(url: "https://github.com/vapor/fluent", from: "4.0.0"),
-        .package(url: "https://github.com/vapor/sql-kit.git", from: "3.1.0")
+        .package(url: "https://github.com/vapor/fluent-kit", from: "1.4.1"),
+        .package(url: "https://github.com/vapor/sql-kit.git", from: "3.1.0"),
     ],
     targets: [
         .target(
-            name: "Sublimate",
+            name: name,
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "Fluent", package: "fluent"),
@@ -25,7 +28,10 @@ let package = Package(
             path: "Sources"),
         .testTarget(
             name: "Tests",
-            dependencies: ["Sublimate"],
+            dependencies: [
+                .target(name: name),
+                .product(name: "XCTFluent", package: "fluent-kit")
+            ],
             path: "Tests"),
     ]
 )

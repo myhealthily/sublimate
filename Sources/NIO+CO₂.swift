@@ -1,10 +1,10 @@
 import class Dispatch.DispatchQueue
 import NIO
 
-public extension EventLoop {
-    func dispatch<T>(use closure: @escaping () throws -> T) -> EventLoopFuture<T> {
-        let promise = makePromise(of: T.self)
-        DispatchQueue.global().async {
+public extension DispatchQueue {
+    func async<T>(on eventLoop: EventLoop, use closure: @escaping () throws -> T) -> EventLoopFuture<T> {
+        let promise = eventLoop.makePromise(of: T.self)
+        async {
             do {
                 promise.succeed(try closure())
             } catch {
