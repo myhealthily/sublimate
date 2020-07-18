@@ -30,7 +30,8 @@ let package = Package(
             name: "Tests",
             dependencies: [
                 .target(name: name),
-                .product(name: "XCTFluent", package: "fluent-kit")
+                .product(name: "XCTFluent", package: "fluent-kit"),
+                .product(name: "XCTVapor", package: "vapor")
             ],
             path: "Tests"),
     ]
