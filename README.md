@@ -2,6 +2,12 @@
 
 A developer-experience (DX) improvement layer for Vapor 4.
 
+## Prerelease Software
+
+Some of the API is not final and may change. After 1.0.0 we will adhere to semantic versioning.
+
+We intend to release 1.0 within weeks.
+
 ## Rationale
 
 Swift is a remarkably safe language, predominantly because of its wonderful syntactic features.
@@ -15,6 +21,7 @@ Sublimate makes using Vapor procedural, like normal code.
     > You will get 90% less of this.
 * Finding doing (basic) logic tedious or untenable with futures?
     > You can write normal Swift with Sublimate
+* Swift has an explicit error handling model, but futures hide where errors happen
 
 ## Comparison
 
@@ -183,6 +190,14 @@ package.dependencies.append(.package(
     url: "https://github.com/candor/sublimate.git",
     from: "0.4.0"
 ))
+```
+
+Then a target will need to depend on Sublimate:
+
+```swift
+.target(name: …, dependencies: [
+    .product(name: "Sublimate", package: "Sublimate"),
+]),
 ```
 
 ## How it works

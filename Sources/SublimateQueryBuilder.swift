@@ -19,6 +19,15 @@ public extension SublimateQueryBuilder {
     }
 
     @discardableResult
+    func group(
+        _ relation: DatabaseQuery.Filter.Relation = .and,
+        _ closure: (QueryBuilder<T>) throws -> ()
+    ) rethrows -> Self {
+        try qb.group(relation, closure)
+        return self
+    }
+
+    @discardableResult
     func filter(_ filter: ModelValueFilter<T>) -> Self {
         qb.filter(filter)
         return self
