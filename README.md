@@ -47,7 +47,7 @@ Versus:
 
 ```swift
 let route = sublimate { rq -> [String] in
-    let group = try Group.findOrAbort(rq.parameters.get("groupID"), on: rq) // †
+    let group = try Group.find(or: .abort, id: rq.parameters.get("groupID"), on: rq) // †
     guard group.enrolled else { throw Abort(.notAcceptable) }
     return try group.$associations.all(on: rq).map(\.email) // ‡
 }
@@ -128,9 +128,9 @@ let route = sublimate { rq -> Response in
 
     let foo = try Foo.query(on: rq)
         .filter(\.$foo == parameter)
-        .firstOrAbort()
+        .first(or: .abort)
     // ^^ `foo` is the model object, not a future
-    // Sublimate provides `firstOrAbort` since we are a DX layer
+    // `first(or: .abort)` throws a well formed `.notFound` error if no results are found
 
     print(foo.baz)
 
