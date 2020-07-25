@@ -6,7 +6,7 @@ import struct Vapor.Abort
 
 public extension Vapor.Request {
     /// Not recommended, but can ease porting
-    func sublimate<Value>(use closure: @escaping (CO₂) throws -> Value, file: String = #file, line: UInt = #line) -> EventLoopFuture<Value> {
+    func sublimate<Value>(file: String = #file, line: UInt = #line, use closure: @escaping (CO₂) throws -> Value) -> EventLoopFuture<Value> {
         DispatchQueue.global().async(on: eventLoop) {
             guard !self.db.inTransaction else {
                 throw Abort(.internalServerError, reason: "Using rq.db from inside a transaction will deadlock Vapor", file: file, line: line)
@@ -19,7 +19,7 @@ public extension Vapor.Request {
 public extension FluentKit.Database {
     /// Not recommended, but can ease porting
     /// - Note: doesn’t seem to work for XCTFluent’s TestDatabase
-    func sublimate<Value>(use closure: @escaping (CO₂DB) throws -> Value, file: String = #file, line: UInt = #line) -> EventLoopFuture<Value> {
+    func sublimate<Value>(file: String = #file, line: UInt = #line, use closure: @escaping (CO₂DB) throws -> Value) -> EventLoopFuture<Value> {
         DispatchQueue.global().async(on: eventLoop) {
             guard !self.inTransaction else {
                 throw Abort(.internalServerError, reason: "Using rq.db from inside a transaction will deadlock Vapor", file: file, line: line)

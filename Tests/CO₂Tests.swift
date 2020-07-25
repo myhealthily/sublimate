@@ -72,6 +72,18 @@ final class CO₂Tests: XCTestCase {
             XCTAssert(foo)
         }
     }
+
+    func testRequestSublimate() throws {
+        app.routes.get("foo", use: { rq in
+            rq.sublimate { rq in
+                HTTPResponseStatus.ok
+            }
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
 }
 
 private struct DummyDatabase: Database {
