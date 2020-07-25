@@ -95,15 +95,15 @@ import Fluent
 
 public struct OnlyHaveOnePaymentStatusType: SublimateMigration {
     public func prepare(on db: CO₂DB) throws {
-        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'noPaymentMethod' WHERE "paymentID" IS NULL"#).run()
-        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'paymentMethodReceived' WHERE "paymentID" IS NOT NULL AND "paymentStatus" = 'unpaid'"#).run()
-        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'errored' WHERE "paymentStatus" = 'error'"#).run()
+        try db.run(sql: #"UPDATE payment_info SET "paymentStatus" = 'noPaymentMethod' WHERE "paymentID" IS NULL"#)
+        try db.run(sql: #"UPDATE payment_info SET "paymentStatus" = 'paymentMethodReceived' WHERE "paymentID" IS NOT NULL AND "paymentStatus" = 'unpaid'"#)
+        try db.run(sql: #"UPDATE payment_info SET "paymentStatus" = 'errored' WHERE "paymentStatus" = 'error'"#)
     }
 
     public func revert(on db: CO₂DB) throws {
-        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'unpaid' WHERE "paymentID" IS NULL"#).run()
-        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'unpaid' WHERE "paymentID" IS NOT NULL AND "paymentStatus" = 'paymentMethodReceived'"#).run()
-        try db.raw(sql: #"UPDATE payment_info SET "paymentStatus" = 'error' WHERE "paymentStatus" = 'errored'"#).run()
+        try db.run(sql: #"UPDATE payment_info SET "paymentStatus" = 'unpaid' WHERE "paymentID" IS NULL"#)
+        try db.run(sql: #"UPDATE payment_info SET "paymentStatus" = 'unpaid' WHERE "paymentID" IS NOT NULL AND "paymentStatus" = 'paymentMethodReceived'"#)
+        try db.run(sql: #"UPDATE payment_info SET "paymentStatus" = 'error' WHERE "paymentStatus" = 'errored'"#)
     }
 }
 ```

@@ -46,4 +46,9 @@ public extension CO₂DB {
         }
         return SublimateRawBuilder(kernel: db.raw(sql))
     }
+
+    @inlinable
+    func run(sql: SQLQueryString) throws {
+        try raw(sql: sql).run()
+    }
 }
