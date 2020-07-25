@@ -1,7 +1,14 @@
+import protocol Vapor.ContentContainer
 import protocol FluentKit.Database
-import Vapor
+import protocol Fluent.Database
+import struct Vapor.Parameters
+import protocol NIO.EventLoop
+import protocol Vapor.Client
+import class Vapor.Request
 
+/// Sublimate utility object wrapping a Fluent `Database` object.
 public class CO₂DB {
+    /// - Returns: The underlying Fluent `Database` object.
     public let db: Database
 
     init(db: Database) {
@@ -10,10 +17,13 @@ public class CO₂DB {
 }
 
 public extension CO₂DB {
+    /// - Returns: The underlying NIO `EventLoop` object.
     @inlinable var eventLoop: EventLoop { db.eventLoop }
 }
 
+/// Sublimate utility object wrapping a Vapor `Request` object and a Fluent `Database` object.
 public final class CO₂: CO₂DB {
+    /// - Returns: The underlying Vapor `Request` object.
     public let rq: Request
 
     init(rq: Request, db: Database) {
@@ -23,8 +33,12 @@ public final class CO₂: CO₂DB {
 }
 
 public extension CO₂ {
+    /// - Returns: Creates a Vapor `Client` object.
     @inlinable var client: Client { rq.client }
+    /// - Returns: Returns the Vapor `Request`’s `ContentContainer`.
     @inlinable var content: ContentContainer { rq.content }
+    /// - Returns: Returns the Vapor `Request`’s `Authentication`.
     @inlinable var auth: Request.Authentication { rq.auth }
+    /// - Returns: Returns the Vapor `Request`’s `Parameters`.
     @inlinable var parameters: Parameters { rq.parameters }
 }

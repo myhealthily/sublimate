@@ -22,18 +22,18 @@ final class FluentTests: XCTestCase {
     func testFilter() throws {
         try db.sublimate { db in
             XCTAssertEqual(
-                try TestModel.query(on: db).filter(\.$field == "foo").one().field,
+                try TestModel.query(on: db).filter(\.$field == "foo").first(or: .abort).field,
                 "foo")
         }.wait()
     }
 }
 
-let input = [
+private let input = [
     TestModel(field: "foo"),
     TestModel(field: "bar")
 ]
 
-final class TestModel: Model {
+private final class TestModel: Model {
     @ID(key: .id) var id: UUID?
     @Field(key: "field") var field: String
 
@@ -55,7 +55,6 @@ extension TestModel: Equatable {
 }
 
 extension TestDatabase {
-    /// Not recommended, but can ease porting
     func sublimate<T>(use closure: @escaping (CO₂DB) throws -> T) -> EventLoopFuture<T> {
         DispatchQueue.global().async(on: db.eventLoop) {
             try closure(CO₂DB(db: self.db))

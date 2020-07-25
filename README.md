@@ -174,6 +174,23 @@ let route = sublimate { (rq, user: User) -> [Response] in
 app.routes.get("foo", use: route)
 ```
 
+```swift
+import Sublimate
+import Vapor
+
+let route = sublimate(in: .transaction) { rq -> Void in
+    // ^^ if you return `Void` we send back an HTTP 200
+    // Use `.transaction` to have the whole route in a transaction
+    
+    let rows = try rq.raw(sql: """
+        SELECT * from \(raw: table)
+        """).all(decoding: MyModel.self)
+    // ^^ easy raw SQL
+
+    // …
+}
+```
+
 ## Usage
 
 We have tried to provide sublimation for everything Vapor and Fluent provide, so generally you should
@@ -188,7 +205,7 @@ We provide `sublimate(in: .transaction, use: myRoute)` to have an entire route i
 ```swift
 package.dependencies.append(.package(
     url: "https://github.com/candor/sublimate.git",
-    from: "0.4.0"
+    from: "1.0.0-rc"
 ))
 ```
 
