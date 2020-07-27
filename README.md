@@ -27,33 +27,46 @@ Sublimate makes using Vapor procedural, like normal code.
 
 ```swift
 func route(on rq: Request) -> EventLoopFuture<[String]> {
-    guard let groupID = rq.parameters.get("groupID") else {
-        return rq.eventLoop.future(Abort(.badRequest))
-    }
-    return Group.find(groupID, on: rq)
-        .unwrap(or: Abort(.notFound))
-        .flatMap { group -> EventLoopFuture<[Association]> in
-            guard group.enrolled else {
-                return rq.eventLoop.makeFailedFuture(Abort(.notAcceptable))
-            }
-            return group.$associations.query(on: rq).all()
-        }.map {
-            $0.map(\.email)
+    do {
+        let userID = try rq.auth.required(User.self).requireID()
+        
+        guard let groupID = rq.parameters.get("groupID") else {
+            return rq.eventLoop.future(Abort(.badRequest))
         }
+    
+        return Group.find(groupID, on: rq)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { group -> EventLoopFuture<[Association]> in
+                guard group.enrolled else {
+                    return rq.eventLoop.makeFailedFuture(Abort(.notAcceptable))
+                }
+                guard group.ownerID == userID else {
+                    return rq.eventLoop.makeFailedFuture(Abort(.unauthorized))
+                }
+                return group.$associations.query(on: rq).all()
+            }.map {
+                $0.map(\.email)
+            }
+        }
+    } catch {
+        return rq.eventLoop.makeFailedFuture(error)
+    }
 }
 ```
 
 Versus:
 
 ```swift
-let route = sublimate { rq -> [String] in
-    let group = try Group.find(or: .abort, id: rq.parameters.get("groupID"), on: rq) // †
+let route = sublimate { (rq, user: User) -> [String] in  // §
+    let group = try Group.find(or: .abort, id: rq.parameters.get("groupID"), on: rq)  // †
     guard group.enrolled else { throw Abort(.notAcceptable) }
-    return try group.$associations.all(on: rq).map(\.email) // ‡
+    guard group.ownerID == try user.requireID() else { throw Abort(.unauthorized) } 
+    return try group.$associations.all(on: rq).map(\.email)  // ‡
 }
 ```
 
-> † Our find functions take optional IDs.\
+> § If you use the two parameter version of  `sublimate()` we decode your `Vapor.Authenticatable` for you automatically.\
+> † Our `find` functions take optional IDs and can throw a well‐formed  `Abort` for you.\
 > ‡ We provide convenience functions to keep your code tight; here you don’t have to call `query()` first.
 
 We also provide `SublimateMigration`, which wraps your regular migration in a Sublimate+transaction layer for a more declarative syntax.
