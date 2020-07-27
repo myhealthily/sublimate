@@ -247,6 +247,10 @@ Sublimate is as thread-safe as Vapor; see their guidelines.
 * This will cause a small performance hit to your server.
 * Having multiple in-flight database requests simultaneously becomes more tedious (but is still possible).
 
+## API Documentation
+
+[Automatically published to our wiki on releases](../../wiki).
+
 ## Dependencies
 
 * Vapor 4 (for `Content`)
