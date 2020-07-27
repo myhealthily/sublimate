@@ -63,7 +63,7 @@ final class CO₂Tests: XCTestCase {
     func testTransactionVoid() throws {
         var foo = false
 
-        app.routes.get("foo", use: sublimate(in: .transaction) { rq in
+        app.routes.get("foo", use: sublimate(in: .transaction) { rq -> Void in
             XCTAssert(rq.db.inTransaction)
             foo = true
         })

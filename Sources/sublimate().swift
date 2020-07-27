@@ -2,6 +2,7 @@ import enum NIOHTTP1.HTTPResponseStatus
 import protocol Vapor.ResponseEncodable
 import protocol Vapor.Authenticatable
 import class Dispatch.DispatchQueue
+import protocol FluentKit.Database
 import class NIO.EventLoopFuture
 import protocol NIO.EventLoop
 import class Vapor.Response
@@ -15,10 +16,12 @@ import class Vapor.Request
      }
 
      app.routes.get(use: route)
+
+ - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
-public func sublimate(use closure: @escaping (CO₂) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
-        DispatchQueue.global().async(on: rq.eventLoop) {
+        options.go(on: rq) { db in
             try closure(CO₂(rq: rq, db: rq.db))
         }
     }
@@ -32,11 +35,13 @@ public func sublimate(use closure: @escaping (CO₂) throws -> Response) -> (Req
      }
 
      app.routes.get(use: route)
+
+ - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
-public func sublimate(use closure: @escaping (CO₂) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
+public func sublimate(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
     return { rq in
-        DispatchQueue.global().async(on: rq.eventLoop) {
-            try closure(CO₂(rq: rq, db: rq.db))
+        options.go(on: rq) { db in
+            try closure(CO₂(rq: rq, db: db))
             return .ok
         }
     }
@@ -52,12 +57,14 @@ public func sublimate(use closure: @escaping (CO₂) throws -> Void) -> (Request
      }
 
      app.routes.get(use: route)
+
+ - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
-public func sublimate<User: Authenticatable>(use closure: @escaping (CO₂, User) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate<User: Authenticatable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         let user = try rq.auth.require(User.self)
-        return DispatchQueue.global().async(on: rq.eventLoop) {
-            try closure(CO₂(rq: rq, db: rq.db), user)
+        return options.go(on: rq) { db in
+            try closure(CO₂(rq: rq, db: db), user)
         }
     }
 }
@@ -72,11 +79,13 @@ public func sublimate<User: Authenticatable>(use closure: @escaping (CO₂, User
      }
 
      app.routes.get(use: route)
+
+ - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
-public func sublimate<E: ResponseEncodable>(use closure: @escaping (CO₂) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate<E: ResponseEncodable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
-        return DispatchQueue.global().async(on: rq.eventLoop) {
-            try closure(CO₂(rq: rq, db: rq.db)).encodeResponse(for: rq).wait()
+        options.go(on: rq) { db in
+            try closure(CO₂(rq: rq, db: db)).encodeResponse(for: rq).wait()
         }
     }
 }
@@ -92,12 +101,14 @@ public func sublimate<E: ResponseEncodable>(use closure: @escaping (CO₂) throw
      }
 
      app.routes.get(use: route)
+
+ - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
-public func sublimate<E: ResponseEncodable, User: Authenticatable>(use closure: @escaping (CO₂, User) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate<E: ResponseEncodable, User: Authenticatable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         let user = try rq.auth.require(User.self)
-        return DispatchQueue.global().async(on: rq.eventLoop) {
-            try closure(CO₂(rq: rq, db: rq.db), user).encodeResponse(for: rq).wait()
+        return options.go(on: rq) { db in
+            try closure(CO₂(rq: rq, db: db), user).encodeResponse(for: rq).wait()
         }
     }
 }
@@ -113,12 +124,14 @@ public func sublimate<E: ResponseEncodable, User: Authenticatable>(use closure: 
      }
 
      app.routes.delete(use: route)
+
+ - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
-public func sublimate<User: Authenticatable>(use closure: @escaping (CO₂, User) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
+public func sublimate<User: Authenticatable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
     return { rq in
         let user = try rq.auth.require(User.self)
-        return DispatchQueue.global().async(on: rq.eventLoop) {
-            try closure(CO₂(rq: rq, db: rq.db), user)
+        return options.go(on: rq) { db in
+            try closure(CO₂(rq: rq, db: db), user)
             return .ok
         }
     }
@@ -132,45 +145,19 @@ public extension CO₂DB {
     }
 }
 
-public func sublimate<User: Authenticatable>(in: CO₂DB.RouteOptions, use closure: @escaping (CO₂, User) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
-    return { rq in
-        let user = try rq.auth.require(User.self)
-        return rq.db.transaction { db in
-            DispatchQueue.global().async(on: rq.eventLoop) {
-                try closure(CO₂(rq: rq, db: db), user)
-                return .ok
+private extension Optional where Wrapped == CO₂DB.RouteOptions {
+    @inline(__always)
+    func go<Value>(on rq: Request, body: @escaping (FluentKit.Database) throws -> Value) -> EventLoopFuture<Value> {
+        switch self {
+        case nil:
+            return DispatchQueue.global().async(on: rq.eventLoop) {
+                try body(rq.db)
             }
-        }
-    }
-}
-
-public func sublimate(in: CO₂DB.RouteOptions, use closure: @escaping (CO₂) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
-    return { rq in
-        rq.db.transaction { db in
-            DispatchQueue.global().async(on: rq.eventLoop) {
-                try closure(CO₂(rq: rq, db: db))
-                return .ok
-            }
-        }
-    }
-}
-
-public func sublimate<E: ResponseEncodable>(in: CO₂DB.RouteOptions, use closure: @escaping (CO₂) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
-    return { rq in
-        return rq.db.transaction { db in
-            DispatchQueue.global().async(on: rq.eventLoop) {
-                try closure(CO₂(rq: rq, db: db)).encodeResponse(for: rq).wait()
-            }
-        }
-    }
-}
-
-public func sublimate<E: ResponseEncodable, User: Authenticatable>(in: CO₂DB.RouteOptions, use closure: @escaping (CO₂, User) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
-    return { rq in
-        let user = try rq.auth.require(User.self)
-        return rq.db.transaction { db in
-            DispatchQueue.global().async(on: rq.eventLoop) {
-                try closure(CO₂(rq: rq, db: db), user).encodeResponse(for: rq).wait()
+        case .transaction:
+            return rq.db.transaction { db in
+                DispatchQueue.global().async(on: rq.eventLoop) {
+                    try body(db)
+                }
             }
         }
     }
