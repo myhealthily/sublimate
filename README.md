@@ -2,12 +2,6 @@
 
 A developer-experience (DX) improvement layer for Vapor 4.
 
-## Prerelease Software
-
-Some of the API is not final and may change. After 1.0.0 we will adhere to semantic versioning.
-
-We intend to release 1.0 within weeks.
-
 ## Rationale
 
 Swift is a remarkably safe language, predominantly because of its wonderful syntactic features.
@@ -29,11 +23,11 @@ Sublimate makes using Vapor procedural, like normal code.
 func route(on rq: Request) -> EventLoopFuture<[String]> {
     do {
         let userID = try rq.auth.required(User.self).requireID()
-        
+
         guard let groupID = rq.parameters.get("groupID") else {
             return rq.eventLoop.future(Abort(.badRequest))
         }
-    
+
         return Group.find(groupID, on: rq)
             .unwrap(or: Abort(.notFound))
             .flatMap { group -> EventLoopFuture<[Association]> in
@@ -60,7 +54,7 @@ Versus:
 let route = sublimate { (rq, user: User) -> [String] in  // §
     let group = try Group.find(or: .abort, id: rq.parameters.get("groupID"), on: rq)  // †
     guard group.enrolled else { throw Abort(.notAcceptable) }
-    guard group.ownerID == try user.requireID() else { throw Abort(.unauthorized) } 
+    guard group.ownerID == try user.requireID() else { throw Abort(.unauthorized) }
     return try group.$associations.all(on: rq).map(\.email)  // ‡
 }
 ```
@@ -194,7 +188,7 @@ import Vapor
 let route = sublimate(in: .transaction) { rq -> Void in
     // ^^ if you return `Void` we send back an HTTP 200
     // Use `.transaction` to have the whole route in a transaction
-    
+
     let rows = try rq.raw(sql: """
         SELECT * from \(raw: table)
         """).all(decoding: MyModel.self)
@@ -218,7 +212,7 @@ We provide `sublimate(in: .transaction, use: myRoute)` to have an entire route i
 ```swift
 package.dependencies.append(.package(
     url: "https://github.com/candor/sublimate.git",
-    from: "1.0.0-rc"
+    from: "1.0.0"
 ))
 ```
 

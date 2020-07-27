@@ -1,0 +1,22 @@
+name: Deploy
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Generate Documentation
+        uses: SwiftDocOrg/swift-doc@master
+        with:
+          inputs: "Sources"
+          module-name: Sublimate
+          output: "Documentation"
+      - name: Publish Documentation
+        uses: SwiftDocOrg/github-wiki-publish-action@v1
+        with:
+          path: "Documentation"
+        env:
+          GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.PAT }}
