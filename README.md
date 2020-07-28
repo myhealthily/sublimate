@@ -24,10 +24,7 @@ Sublimate makes using Vapor procedural, like normal code.
 func route(on rq: Request) -> EventLoopFuture<[String]> {
     do {
         let userID = try rq.auth.required(User.self).requireID()
-
-        guard let groupID = rq.parameters.get("groupID") else {
-            return rq.eventLoop.future(Abort(.badRequest))
-        }
+        guard let groupID = rq.parameters.get("groupID") else { throw Abort(.badRequest) }
 
         return Group.find(groupID, on: rq)
             .unwrap(or: Abort(.notFound))
@@ -42,7 +39,6 @@ func route(on rq: Request) -> EventLoopFuture<[String]> {
             }.map {
                 $0.map(\.email)
             }
-        }
     } catch {
         return rq.eventLoop.makeFailedFuture(error)
     }
