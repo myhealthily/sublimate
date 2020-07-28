@@ -1,4 +1,5 @@
-# Sublimate
+# Sublimate ![badge-platforms][] ![badge-languages][] [![badge-ci][]][ci]
+
 
 A developer-experience (DX) improvement layer for Vapor 4.
 
@@ -265,3 +266,9 @@ Sublimate is as thread-safe as Vapor; see their guidelines.
 
 * We suggest a separate module for your routes.
 * We don’t suggest controllers, but using controllers should still be fine, if not open a ticket and we’ll look into what we can do to improve this usage.
+
+
+[badge-platforms]: https://img.shields.io/badge/platforms-macOS%20%7C%20Linux-lightgrey.svg
+[badge-languages]: https://img.shields.io/badge/swift-5.2%20%7C%205.3-orange.svg
+[badge-ci]: https://github.com/candor/sublimate/workflows/CI/badge.svg
+[ci]: https://github.com/candor/sublimate/actions
