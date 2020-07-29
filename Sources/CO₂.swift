@@ -1,6 +1,7 @@
 import protocol Vapor.ContentContainer
 import protocol FluentKit.Database
 import protocol Fluent.Database
+import struct Vapor.HTTPHeaders
 import struct Vapor.Parameters
 import protocol NIO.EventLoop
 import protocol Vapor.Client
@@ -41,4 +42,6 @@ public extension CO₂ {
     @inlinable var auth: Request.Authentication { rq.auth }
     /// - Returns: Returns the Vapor `Request`’s `Parameters`.
     @inlinable var parameters: Parameters { rq.parameters }
+    /// - Returns: Returns the Vapor `Request`’s `HTTPHeaders`.
+    @inlinable var headers: HTTPHeaders { rq.headers }
 }
