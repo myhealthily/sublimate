@@ -1,19 +1,27 @@
 name: Tests
 on: [pull_request]
-env:
-  FLAGS: --enable-test-discovery
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: technote-space/auto-cancel-redundant-job@v1
     - uses: actions/checkout@v2
-    - uses: actions/cache@v2
-      with:
-        path: .build
-        key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
-        restore-keys: ${{ runner.os }}-spm-
-    - name: Build
-      run: swift build $FLAGS
+    # - uses: actions/cache@v2
+    #   with:
+    #     path: .build
+    #     key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+    #     restore-keys: ${{ runner.os }}-spm-
     - name: Test
-      run: swift test $FLAGS --enable-code-coverage
+      run: swift test --enable-test-discovery --enable-code-coverage
+    - name: Generate Coverage Report
+      run: |
+        sudo apt-get -qq update && sudo apt-get -qq install llvm-10
+        export b=$(swift build --show-bin-path) && llvm-cov-10 \
+          export -format lcov \
+          -instr-profile=$b/codecov/default.profdata \
+          --ignore-filename-regex='\.build/' \
+          $b/SublimatePackageTests.xctest \
+          > info.lcov
+    - uses: codecov/codecov-action@v1
+      with:
+        file: ./info.lcov

@@ -17,11 +17,11 @@ jobs:
     #     path: .build
     #     key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
     #     restore-keys: ${{ runner.os }}-spm-
-    - run: sudo apt-get -qq update && sudo apt-get -qq install llvm-10
     - name: Test
       run: swift test --enable-code-coverage --enable-test-discovery
     - name: Generate Coverage Report
       run: |
+        sudo apt-get -qq update && sudo apt-get -qq install llvm-10
         export b=$(swift build --show-bin-path) && llvm-cov-10 \
           export -format lcov \
           -instr-profile=$b/codecov/default.profdata \
