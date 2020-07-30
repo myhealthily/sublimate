@@ -21,10 +21,7 @@ public extension FluentKit.Database {
     /// - Note: doesn’t seem to work for XCTFluent’s TestDatabase
     func sublimate<Value>(file: String = #file, line: UInt = #line, use closure: @escaping (CO₂DB) throws -> Value) -> EventLoopFuture<Value> {
         DispatchQueue.global().async(on: eventLoop) {
-            guard !self.inTransaction else {
-                throw Abort(.internalServerError, reason: "Using rq.db from inside a transaction will deadlock Vapor", file: file, line: line)
-            }
-            return try closure(CO₂DB(db: self))
+            try closure(CO₂DB(db: self))
         }
     }
 }
