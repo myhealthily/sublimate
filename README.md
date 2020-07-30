@@ -200,9 +200,13 @@ let route = sublimate(in: .transaction) { rq -> Void in
 We have tried to provide sublimation for everything Vapor and Fluent provide, so generally you should
 find it just works.
 
-## Transactions
+### Transactions
 
-We provide `sublimate(in: .transaction, use: myRoute)` to have an entire route in a transaction.
+Use `sublimate(in: .transaction, use: myRoute)` and the entire route will be performed in a transaction.
+
+### ModelMiddlware
+
+We provide `SublimateModelMiddleware`.
 
 ## Installation
 
