@@ -45,6 +45,18 @@ public extension SublimateQueryBuilder {
 
     @discardableResult
     @inlinable
+    func filter<Field>(
+        _ field: KeyPath<Model, Field>,
+        _ method: DatabaseQuery.Filter.Method,
+        _ value: Field.Value
+    ) -> Self
+        where Field: QueryableProperty, Field.Model == Model
+    {
+        kernel.filter(field, method, value)
+        return self
+    }
+    @discardableResult
+    @inlinable
     func filter<Joined>(_ schema: Joined.Type, _ filter: FluentKit.ModelValueFilter<Joined>) -> Self where Joined : FluentKit.Schema {
         kernel.filter(schema, filter)
         return self
