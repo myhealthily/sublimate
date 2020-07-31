@@ -10,6 +10,11 @@ public extension CO₂ {
 public struct SublimateQueryBuilder<Model: FluentKit.Model> {
     // `public` so we can be inlinable
     public let kernel: QueryBuilder<Model>
+
+    // Allows you to convert `Fluent.QueryBuilder`s
+    public init(_ kernel: QueryBuilder<Model>) {
+        self.kernel = kernel
+    }
 }
 
 public extension SublimateQueryBuilder {

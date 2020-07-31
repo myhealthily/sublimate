@@ -45,7 +45,7 @@ private struct Wrapper: Migration {
 }
 
 
-public class SublimateSchemaBuilder {
+public final class SublimateSchemaBuilder {
     public let sb: SchemaBuilder
 
     init(sb: SchemaBuilder) {

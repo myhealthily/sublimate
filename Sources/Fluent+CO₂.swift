@@ -15,7 +15,7 @@ public extension Array where Element: Model {
 
 public extension Model {
     static func query(on subl: CO₂DB) -> SublimateQueryBuilder<Self> {
-        return SublimateQueryBuilder(kernel: query(on: subl.db))
+        return SublimateQueryBuilder(query(on: subl.db))
     }
 
     static func find(_ id: IDValue?, on subl: CO₂DB) throws -> Self? {
@@ -65,7 +65,7 @@ public extension Model {
 
 public extension ParentProperty {
     func query(on subl: CO₂DB) -> SublimateQueryBuilder<To> {
-        .init(kernel: query(on: subl.db))
+        .init(query(on: subl.db))
     }
 
     func get(on subl: CO₂DB, file: String = #file, line: UInt = #line) throws -> To {
@@ -79,7 +79,7 @@ public extension ParentProperty {
 
 public extension ChildrenProperty {
     func query(on subl: CO₂DB) -> SublimateQueryBuilder<To> {
-        .init(kernel: query(on: subl.db))
+        .init(query(on: subl.db))
     }
 
     func all(on subl: CO₂DB) throws -> [To] {
