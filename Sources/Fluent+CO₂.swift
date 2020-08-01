@@ -82,11 +82,23 @@ public extension ParentProperty {
 }
 
 public extension ChildrenProperty {
+    @inlinable
     func query(on subl: CO₂DB) -> SublimateQueryBuilder<To> {
         .init(query(on: subl.db))
     }
 
+    @inlinable
     func all(on subl: CO₂DB) throws -> [To] {
         try query(on: subl.db).all().wait()
+    }
+
+    @inlinable
+    func create(_ to: [To], on subl: CO₂DB) throws {
+        try create(to, on: subl.db).wait()
+    }
+
+    @inlinable
+    func create(_ to: To, on subl: CO₂DB) throws {
+        try create(to, on: subl.db).wait()
     }
 }

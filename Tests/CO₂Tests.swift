@@ -110,18 +110,103 @@ final class CO₂Tests: CO₂TestCase {
 }
 
 extension CO₂Tests {
-    // doesn't work, dunno why
-//    func testAuthedHTTPStatus() throws {
-//        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate { (rq, user: Authenticatable) -> HTTPStatus in
-//            XCTAssertFalse(rq.db.inTransaction)
-//            XCTAssertEqual(user.name, "CO₂")
-//            return .ok
-//        })
-//
-//        try app.testable(method: .inMemory).test(.GET, "foo") {
-//            XCTAssertEqual($0.status, .ok)
-//        }
-//    }
+    func testAuthedHTTPStatus() throws {
+        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate { (rq, user: Authenticatable) -> HTTPStatus in
+            XCTAssertFalse(rq.db.inTransaction)
+            XCTAssertEqual(user.name, "CO₂")
+            return .ok
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
+    func testAuthedHTTPResponse() throws {
+        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate { (rq, user: Authenticatable) -> Response in
+            XCTAssertFalse(rq.db.inTransaction)
+            XCTAssertEqual(user.name, "CO₂")
+            return Response(status: .ok)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
+    func testAuthedVoid() throws {
+        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate { (rq, user: Authenticatable) -> Void in
+            XCTAssertFalse(rq.db.inTransaction)
+            XCTAssertEqual(user.name, "CO₂")
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
+    func testAuthedEncodable() throws {
+        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate { (rq, user: Authenticatable) -> Encodable in
+            XCTAssertFalse(rq.db.inTransaction)
+            XCTAssertEqual(user.name, "CO₂")
+            return Encodable(foo: true)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            let rsp = try $0.content.decode(Decodable.self)
+            XCTAssertEqual(rsp.foo, true)
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
+    func testAuthedTransactionHTTPStatus() throws {
+        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate(in: .transaction) { (rq, user: Authenticatable) -> HTTPStatus in
+            XCTAssert(rq.db.inTransaction)
+            XCTAssertEqual(user.name, "CO₂")
+            return .ok
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
+    func testAuthedTransactionVoid() throws {
+        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate(in: .transaction) { (rq, user: Authenticatable) -> Void in
+            XCTAssert(rq.db.inTransaction)
+            XCTAssertEqual(user.name, "CO₂")
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
+    func testAuthedTransactionHTTPResponse() throws {
+        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate(in: .transaction) { (rq, user: Authenticatable) -> Response in
+            XCTAssert(rq.db.inTransaction)
+            XCTAssertEqual(user.name, "CO₂")
+            return Response(status: .ok)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
+    func testAuthedTransactionEncodable() throws {
+        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate(in: .transaction) { (rq, user: Authenticatable) -> Encodable in
+            XCTAssert(rq.db.inTransaction)
+            XCTAssertEqual(user.name, "CO₂")
+            return Encodable(foo: true)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            let rsp = try $0.content.decode(Decodable.self)
+            XCTAssertEqual(rsp.foo, true)
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
 }
 
 extension CO₂Tests {
@@ -169,10 +254,10 @@ private struct Authenticatable: Vapor.Authenticatable {
     var name: String
 }
 
-private struct UserAuthenticator: BasicAuthenticator {
+private struct UserAuthenticator: RequestAuthenticator {
     typealias User = Authenticatable
 
-    func authenticate(basic: BasicAuthorization, for request: Request) -> EventLoopFuture<Void> {
+    func authenticate(request: Request) -> EventLoopFuture<Void> {
         request.auth.login(User(name: "CO₂"))
         return request.eventLoop.makeSucceededFuture(())
    }

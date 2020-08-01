@@ -1,4 +1,4 @@
-import Sublimate
+@testable import Sublimate
 import XCTFluent
 import XCTest
 import Vapor
@@ -73,4 +73,12 @@ class SublimateRawBuilderTests: CO₂TestCase {
 
 private struct Row: Decodable {
     let id: Int
+}
+
+private extension TestDatabase {
+    func sublimate<T>(use closure: @escaping (CO₂DB) throws -> T) -> EventLoopFuture<T> {
+        DispatchQueue.global().async(on: db.eventLoop) {
+            try closure(CO₂DB(db: self.db))
+        }
+    }
 }

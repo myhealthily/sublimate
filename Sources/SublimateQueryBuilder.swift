@@ -60,6 +60,7 @@ public extension SublimateQueryBuilder {
         kernel.filter(field, method, value)
         return self
     }
+    
     @discardableResult
     @inlinable
     func filter<Joined>(_ schema: Joined.Type, _ filter: FluentKit.ModelValueFilter<Joined>) -> Self where Joined : FluentKit.Schema {
@@ -77,7 +78,7 @@ public extension SublimateQueryBuilder {
         try kernel.first().wait()
     }
 
-    func first(or _: CO₂.QueryOptions, file: String = #file, line: UInt = #line) throws -> Model {
+    func first(or _: CO₂.QueryOptions? = nil, file: String = #file, line: UInt = #line) throws -> Model {
         guard let foo = try kernel.first().wait() else {
             throw Abort(.notFound, reason: "\(Model.self)s not found for this input.", file: file, line: line)
         }

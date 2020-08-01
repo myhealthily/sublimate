@@ -6,12 +6,17 @@ on:
     paths-ignore:
       - README.md
       - .gitignore
+  pull_request:
+    paths-ignore:
+      - README.md
+      - .gitignore
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: technote-space/auto-cancel-redundant-job@v1
     - uses: actions/checkout@v2
+    # the cache breaks too often
     # - uses: actions/cache@v2
     #   with:
     #     path: .build

@@ -15,10 +15,11 @@ Sublimate makes using Vapor procedural, like normal code.
 ### Pain Points Removed
 
 * Bored with Swift complaining everything is ambiguous?
-    > You will get 90% less of this.
-* Finding doing (basic) logic tedious or untenable with futures?
-    > You can write normal Swift with Sublimate
-* Swift has an explicit error handling model, but futures hide where errors happen
+    > You will get so much less of this.
+* Finding doing basic logic tedious or untenable with futures?
+    > You can write normal Swift with Sublimate.
+* Swift has an explicit error handling model, but futures hide where errors happen.
+* We have a `README`! Vapor has no READMEs and barely any documentation ¯\_(ツ)_/¯
 
 ## Comparison
 
