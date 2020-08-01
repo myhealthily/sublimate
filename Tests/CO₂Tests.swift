@@ -5,21 +5,11 @@ import Fluent
 import XCTest
 import Vapor
 
-final class CO₂Tests: XCTestCase {
-    var app: Application!
-
-    override func setUp() {
-        app = Application(.testing)
-        app.databases.use(DummyDatabase.Configuration(), as: .init(string: "test"))
-    }
-
-    override func tearDown() {
-        app.shutdown()
-    }
-
+final class CO₂Tests: CO₂TestCase {
     func testHTTPStatus() throws {
-        app.routes.get("foo", use: sublimate { rq in
-            HTTPStatus.ok
+        app.routes.get("foo", use: sublimate { rq -> HTTPStatus in
+            XCTAssertFalse(rq.db.inTransaction)
+            return .ok
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -28,8 +18,9 @@ final class CO₂Tests: XCTestCase {
     }
 
     func testHTTPResponse() throws {
-        app.routes.get("foo", use: sublimate { rq in
-            Response(status: .ok)
+        app.routes.get("foo", use: sublimate { rq -> Response in
+            XCTAssertFalse(rq.db.inTransaction)
+            return Response(status: .ok)
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -40,12 +31,25 @@ final class CO₂Tests: XCTestCase {
     func testVoid() throws {
         var foo = false
 
-        app.routes.get("foo", use: sublimate { rq in
+        app.routes.get("foo", use: sublimate { rq -> Void in
+            XCTAssertFalse(rq.db.inTransaction)
             foo = true
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") { _ in
             XCTAssert(foo)
+        }
+    }
+
+    func testEncodable() throws {
+        app.routes.get("foo", use: sublimate { rq -> Encodable in
+            XCTAssertFalse(rq.db.inTransaction)
+            return Encodable(foo: true)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            let rsp = try $0.content.decode(Decodable.self)
+            XCTAssertEqual(rsp.foo, true)
         }
     }
 
@@ -73,11 +77,63 @@ final class CO₂Tests: XCTestCase {
         }
     }
 
-    func testRequestSublimate() throws {
-        app.routes.get("foo", use: { rq in
-            rq.sublimate { rq in
-                HTTPResponseStatus.ok
-            }
+    func testTransactionHTTPResponse() throws {
+        var foo = false
+
+        app.routes.get("foo", use: sublimate(in: .transaction) { rq -> Response in
+            XCTAssert(rq.db.inTransaction)
+            foo = true
+            return Response(status: .ok)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssert(foo)
+        }
+    }
+
+    func testTransactionEncodable() throws {
+        var foo = false
+
+        app.routes.get("foo", use: sublimate(in: .transaction) { rq -> Encodable in
+            XCTAssert(rq.db.inTransaction)
+            foo = true
+            return Encodable(foo: true)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            let rsp = try $0.content.decode(Decodable.self)
+            XCTAssertEqual(rsp.foo, true)
+            XCTAssert(foo)
+        }
+    }
+}
+
+extension CO₂Tests {
+    // doesn't work, dunno why
+//    func testAuthedHTTPStatus() throws {
+//        app.routes.grouped(UserAuthenticator()).get("foo", use: sublimate { (rq, user: Authenticatable) -> HTTPStatus in
+//            XCTAssertFalse(rq.db.inTransaction)
+//            XCTAssertEqual(user.name, "CO₂")
+//            return .ok
+//        })
+//
+//        try app.testable(method: .inMemory).test(.GET, "foo") {
+//            XCTAssertEqual($0.status, .ok)
+//        }
+//    }
+}
+
+extension CO₂Tests {
+    // for code coverage
+    func testProperties() throws {
+        app.routes.get("foo", use: sublimate(in: .transaction) { rq -> Void in
+            _ = rq.auth
+            _ = rq.headers
+            _ = rq.content
+            _ = rq.headers
+            _ = rq.parameters
+            _ = rq.client
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -86,57 +142,38 @@ final class CO₂Tests: XCTestCase {
     }
 }
 
-private struct DummyDatabase: Database {
-    var context: DatabaseContext {
-        fatalError()
-    }
-
-    init(inTransaction: Bool = false) {
-        self.inTransaction = inTransaction
-    }
-
-    let inTransaction: Bool
-
-    struct Configuration: DatabaseConfiguration {
-        func makeDriver(for databases: Databases) -> DatabaseDriver {
-            Driver()
+private struct Encodable: ResponseEncodable {
+    func encodeResponse(for request: Request) -> EventLoopFuture<Response> {
+        struct Encodable: Swift.Encodable {
+            let foo: Bool
         }
-
-        var middleware: [AnyModelMiddleware] {
-            get {[]}
-            set {}
-        }
-
-        init()
-        {}
-
-        struct Driver: DatabaseDriver {
-            func makeDatabase(with context: DatabaseContext) -> Database {
-                DummyDatabase()
-            }
-
-            func shutdown()
-            {}
+        do {
+            let data = try JSONEncoder().encode(Encodable(foo: foo))
+            var headers = HTTPHeaders()
+            headers.add(name: .contentType, value: "application/json")
+            let rsp = Response(status: .ok, headers: headers, body: .init(data: data))
+            return request.eventLoop.makeSucceededFuture(rsp)
+        } catch {
+            return request.eventLoop.makeFailedFuture(error)
         }
     }
 
-    func execute(query: DatabaseQuery, onOutput: @escaping (DatabaseOutput) -> ()) -> EventLoopFuture<Void> {
-        fatalError()
-    }
+    let foo: Bool
+}
 
-    func execute(schema: DatabaseSchema) -> EventLoopFuture<Void> {
-        fatalError()
-    }
+private struct Decodable: Swift.Decodable {
+    let foo: Bool
+}
 
-    func execute(enum: DatabaseEnum) -> EventLoopFuture<Void> {
-        fatalError()
-    }
+private struct Authenticatable: Vapor.Authenticatable {
+    var name: String
+}
 
-    func transaction<T>(_ closure: @escaping (Database) -> EventLoopFuture<T>) -> EventLoopFuture<T> {
-        closure(Self(inTransaction: true))
-    }
+private struct UserAuthenticator: BasicAuthenticator {
+    typealias User = Authenticatable
 
-    func withConnection<T>(_ closure: @escaping (Database) -> EventLoopFuture<T>) -> EventLoopFuture<T> {
-        closure(self)
-    }
+    func authenticate(basic: BasicAuthorization, for request: Request) -> EventLoopFuture<Void> {
+        request.auth.login(User(name: "CO₂"))
+        return request.eventLoop.makeSucceededFuture(())
+   }
 }

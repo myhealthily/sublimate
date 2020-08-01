@@ -22,7 +22,7 @@ import class Vapor.Request
 public func sublimate(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         options.go(on: rq) { db in
-            try closure(CO₂(rq: rq, db: rq.db))
+            try closure(CO₂(rq: rq, db: db))
         }
     }
 }

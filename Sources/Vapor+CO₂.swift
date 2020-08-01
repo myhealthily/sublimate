@@ -8,10 +8,7 @@ public extension Vapor.Request {
     /// Not recommended, but can ease porting
     func sublimate<Value>(file: String = #file, line: UInt = #line, use closure: @escaping (CO₂) throws -> Value) -> EventLoopFuture<Value> {
         DispatchQueue.global().async(on: eventLoop) {
-            guard !self.db.inTransaction else {
-                throw Abort(.internalServerError, reason: "Using rq.db from inside a transaction will deadlock Vapor", file: file, line: line)
-            }
-            return try closure(CO₂(rq: self, db: self.db))
+            try closure(CO₂(rq: self, db: self.db))
         }
     }
 }

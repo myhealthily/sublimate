@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "fluent-sqlite-driver",
+        "repositoryURL": "https://github.com/vapor/fluent-sqlite-driver.git",
+        "state": {
+          "branch": null,
+          "revision": "b828ac3891f6c872a2cc4b76586d68327af2941e",
+          "version": "4.0.0"
+        }
+      },
+      {
         "package": "routing-kit",
         "repositoryURL": "https://github.com/vapor/routing-kit.git",
         "state": {
@@ -62,6 +71,24 @@
           "branch": null,
           "revision": "ea9928b7f4a801b175a00b982034d9c54ecb6167",
           "version": "3.7.0"
+        }
+      },
+      {
+        "package": "sqlite-kit",
+        "repositoryURL": "https://github.com/vapor/sqlite-kit.git",
+        "state": {
+          "branch": null,
+          "revision": "73d4156dd1e000a8814ac7c74732fcad52a91bda",
+          "version": "4.0.1"
+        }
+      },
+      {
+        "package": "sqlite-nio",
+        "repositoryURL": "https://github.com/vapor/sqlite-nio.git",
+        "state": {
+          "branch": null,
+          "revision": "2e9ae8aab4f20a372901047e0aaf051783eb8bd7",
+          "version": "1.0.0"
         }
       },
       {
@@ -105,8 +132,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "3cfb3f1d6efb05d1e93be342ea3d3e99aed00bb5",
-          "version": "2.20.0"
+          "revision": "acf5465b5e7fb9aeda54a34d16fb44c31a399715",
+          "version": "2.20.2"
         }
       },
       {

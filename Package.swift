@@ -16,6 +16,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent-kit", from: "1.4.1"),
         .package(url: "https://github.com/vapor/sql-kit.git", from: "3.1.0"),
+        .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0-beta")
     ],
     targets: [
         .target(
@@ -31,7 +32,8 @@ let package = Package(
             dependencies: [
                 .target(name: name),
                 .product(name: "XCTFluent", package: "fluent-kit"),
-                .product(name: "XCTVapor", package: "vapor")
+                .product(name: "XCTVapor", package: "vapor"),
+                .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver")
             ],
             path: "Tests"),
     ]
