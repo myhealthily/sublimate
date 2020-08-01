@@ -61,6 +61,10 @@ public extension Model {
     func delete(on subl: CO₂DB) throws {
         try delete(on: subl.db).wait()
     }
+
+    func restore(on subl: CO₂DB) throws {
+        try restore(on: subl.db).wait()
+    }
 }
 
 public extension ParentProperty {

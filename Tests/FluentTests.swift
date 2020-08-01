@@ -26,6 +26,15 @@ final class FluentTests: XCTestCase {
                 "foo")
         }.wait()
     }
+
+    func testCount() throws {
+        try db.sublimate { db in
+            // ArrayTestDatabase doesn’t seem to support `count()`
+//            XCTAssertEqual(
+//                try TestModel.query(on: db).count(),
+//                input.count)
+        }.wait()
+    }
 }
 
 private let input = [

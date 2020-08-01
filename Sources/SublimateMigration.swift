@@ -179,7 +179,12 @@ public final class SublimateSchemaBuilder {
 }
 
 extension Migrations {
+    @inline(__always)
     public func add(_ migrations: SublimateMigration..., to id: DatabaseID? = nil) {
+        add(migrations, to: id)
+    }
+
+    public func add(_ migrations: [SublimateMigration], to id: DatabaseID? = nil) {
         add(migrations.map(Wrapper.init), to: id)
     }
 }

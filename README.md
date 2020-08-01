@@ -1,4 +1,4 @@
-# Sublimate ![badge-platforms][] ![badge-languages][] [![badge-ci][]][ci]
+# Sublimate ![badge-platforms][] ![badge-languages][] [![badge-ci][]][ci] [![badge-codecov][]][codecov]
 
 
 A developer-experience (DX) improvement layer for Vapor 4.
@@ -6,7 +6,9 @@ A developer-experience (DX) improvement layer for Vapor 4.
 ## Rationale
 
 Swift is a remarkably safe language, predominantly because of its wonderful syntactic features.
-However Vapor is built on NIO and NIO uses *futures*. Working with futures sucks.
+This makes Swift perfect for server-side work where you want to aim for as little downtime as possible.
+However Vapor is built on NIO and NIO uses *futures*. Working with futures makes it much harder
+to capitalize on the safety of Swift.
 
 Sublimate makes using Vapor procedural, like normal code.
 
@@ -271,4 +273,6 @@ Sublimate is as thread-safe as Vapor; see their guidelines.
 [badge-platforms]: https://img.shields.io/badge/platforms-macOS%20%7C%20Linux-lightgrey.svg
 [badge-languages]: https://img.shields.io/badge/swift-5.2%20%7C%205.3-orange.svg
 [badge-ci]: https://github.com/candor/sublimate/workflows/CI/badge.svg
+[badge-codecov]: https://codecov.io/gh/candor/sublimate/branch/master/graph/badge.svg
 [ci]: https://github.com/candor/sublimate/actions
+[codecov]: https://codecov.io/gh/candor/sublimate
