@@ -1,0 +1,20 @@
+name: Performance Metrics
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: brew install wrk
+      - name: Build
+        run: swift build --configuration release
+        working-directory: Metrics
+      - name: Metrics
+        run: |
+          nohup Metrics/.build/release/SublimateMetrics &
+          sleep 10
+          wrk -d 20 -t 2 -c 50 http://localhost:8080/std
+          wrk -d 20 -t 2 -c 50 http://localhost:8080/CO2

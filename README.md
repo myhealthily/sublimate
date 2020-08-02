@@ -248,8 +248,10 @@ Sublimate is as thread-safe as Vapor; see their guidelines.
 
 ### Caveats
 
-* This will cause a small performance hit to your server.
+* This will cause a small performance hit to your server †
 * Having multiple in-flight database requests simultaneously becomes more tedious (but is still possible).
+
+> † we run some [(basic) metrics][metrics], the performance difference is neglible 
 
 ## API Documentation
 
@@ -277,3 +279,4 @@ Sublimate is as thread-safe as Vapor; see their guidelines.
 [badge-codecov]: https://codecov.io/gh/candor/sublimate/branch/master/graph/badge.svg
 [ci]: https://github.com/candor/sublimate/actions
 [codecov]: https://codecov.io/gh/candor/sublimate
+[metrics]: https://github.com/candor/sublimate/actions?query=workflow%3A%22Performance+Metrics%22
