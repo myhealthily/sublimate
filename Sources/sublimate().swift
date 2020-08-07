@@ -19,6 +19,7 @@ import class Vapor.Request
 
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
+@_disfavoredOverload
 public func sublimate(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         options.go(on: rq) { db in
@@ -60,6 +61,7 @@ public func sublimate(in options: CO₂DB.RouteOptions? = nil, use closure: @esc
 
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
+@_disfavoredOverload
 public func sublimate<User: Authenticatable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         let user = try rq.auth.require(User.self)
@@ -82,6 +84,7 @@ public func sublimate<User: Authenticatable>(in options: CO₂DB.RouteOptions? =
 
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
+@_disfavoredOverload
 public func sublimate<E: ResponseEncodable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         options.go(on: rq) { db in
@@ -104,6 +107,7 @@ public func sublimate<E: ResponseEncodable>(in options: CO₂DB.RouteOptions? = 
 
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
+@_disfavoredOverload
 public func sublimate<E: ResponseEncodable, User: Authenticatable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         let user = try rq.auth.require(User.self)

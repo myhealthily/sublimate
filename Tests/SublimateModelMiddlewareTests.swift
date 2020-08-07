@@ -72,7 +72,7 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
 
         app.databases.middleware.use(MW())
 
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             XCTAssertFalse(rq.db.inTransaction)
             let model = try Model().create(on: rq)
             XCTAssertEqual(try Model.query(on: rq).first(or: .abort).id, .zero)
@@ -95,7 +95,7 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
 
         app.databases.middleware.use(MW())
 
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             XCTAssertFalse(rq.db.inTransaction)
             let model = try SoftDeleteModel().create(on: rq)
             XCTAssertEqual(try SoftDeleteModel.query(on: rq).first(or: .abort).id, .zero)
@@ -118,7 +118,7 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
 
         app.databases.middleware.use(MW())
 
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             XCTAssertFalse(rq.db.inTransaction)
             let model = try SoftDeleteModel().create(on: rq)
             XCTAssertEqual(try SoftDeleteModel.query(on: rq).first(or: .abort).id, .zero)
@@ -144,7 +144,7 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
         app.databases.middleware.use(MW1())
         app.databases.middleware.use(MW2())
 
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             do {
                 XCTAssertFalse(rq.db.inTransaction)
                 let model = try Model().create(on: rq)

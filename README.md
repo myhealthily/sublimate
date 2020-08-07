@@ -185,8 +185,8 @@ app.routes.get("foo", use: route)
 import Sublimate
 import Vapor
 
-let route = sublimate(in: .transaction) { rq -> Void in
-    // ^^ if you return `Void` we send back an HTTP 200
+let route = sublimate(in: .transaction) { rq in
+    // ^^ if you return `Void` we send back an HTTP 200 (`Void` is chosen by Swift if you specify no return type)
     // Use `.transaction` to have the whole route in a transaction
 
     let rows = try rq.raw(sql: """

@@ -5,7 +5,7 @@ import Vapor
 
 class SublimateRawBuilderTests: CO₂TestCase {
     func testRun() throws {
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.run(sql: "INSERT INTO foo (id) VALUES (0)")
         })
@@ -16,7 +16,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
     }
 
     func testFirst() throws {
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
             _ = try rq.raw(sql: "SELECT * FROM foo").first()
@@ -28,7 +28,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
     }
 
     func testFirstDecoding() throws {
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
             _ = try rq.raw(sql: "SELECT * FROM foo").first(decoding: Row.self)
@@ -40,7 +40,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
     }
 
     func testAll() throws {
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
             _ = try rq.raw(sql: "SELECT * FROM foo").all()
@@ -52,7 +52,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
     }
 
     func testAllDecoding() throws {
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
             _ = try rq.raw(sql: "SELECT * FROM foo").all(decoding: Row.self)
