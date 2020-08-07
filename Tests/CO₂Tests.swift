@@ -31,7 +31,7 @@ final class CO₂Tests: CO₂TestCase {
     func testVoid() throws {
         var foo = false
 
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             XCTAssertFalse(rq.db.inTransaction)
             foo = true
         })
@@ -67,7 +67,7 @@ final class CO₂Tests: CO₂TestCase {
     func testTransactionVoid() throws {
         var foo = false
 
-        app.routes.get("foo", use: sublimate(in: .transaction) { rq -> Void in
+        app.routes.get("foo", use: sublimate(in: .transaction) { rq in
             XCTAssert(rq.db.inTransaction)
             foo = true
         })
@@ -212,7 +212,7 @@ extension CO₂Tests {
 extension CO₂Tests {
     // for code coverage
     func testProperties() throws {
-        app.routes.get("foo", use: sublimate(in: .transaction) { rq -> Void in
+        app.routes.get("foo", use: sublimate(in: .transaction) { rq in
             _ = rq.auth
             _ = rq.headers
             _ = rq.content

@@ -19,7 +19,7 @@ class NIOTests: CO₂TestCase {
     }
 
     func testCollectionFlattenVoid() throws {
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             let f1 = rq.eventLoop.makeSucceededFuture(())
             let f2 = rq.eventLoop.makeSucceededFuture(())
             return try [f1, f2].flatten(on: rq)
@@ -31,7 +31,7 @@ class NIOTests: CO₂TestCase {
     }
 
     func testFail() throws {
-        app.routes.get("foo", use: sublimate { rq -> Void in
+        app.routes.get("foo", use: sublimate { rq in
             throw Abort(.notFound)
         })
 
