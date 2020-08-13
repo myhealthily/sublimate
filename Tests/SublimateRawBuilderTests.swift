@@ -20,7 +20,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
-            _ = try rq.raw(sql: "SELECT * FROM foo").first()
+            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first())
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -32,7 +32,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
-            _ = try rq.raw(sql: "SELECT * FROM foo").first(decoding: Row.self)
+            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(decoding: Row.self))
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -44,7 +44,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id UUID PRIMARY KEY, bar INTEGER NOT NULL)").run()
             try rq.raw(sql: "INSERT INTO foo (id, bar) VALUES (\(bind: UUID().uuidString), \(bind: 0))").run()
-            _ = try rq.raw(sql: "SELECT * FROM foo").first(decoding: Model.self)
+            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(decoding: Model.self))
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -56,7 +56,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
-            _ = try rq.raw(sql: "SELECT * FROM foo").all()
+            XCTAssertEqual(try rq.raw(sql: "SELECT * FROM foo").all().count, 1)
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -68,7 +68,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
-            _ = try rq.raw(sql: "SELECT * FROM foo").all(decoding: Row.self)
+            XCTAssertEqual(try rq.raw(sql: "SELECT * FROM foo").all(decoding: Row.self).count, 1)
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -80,7 +80,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id UUID PRIMARY KEY, bar INTEGER NOT NULL)").run()
             try rq.raw(sql: "INSERT INTO foo (id, bar) VALUES (\(bind: UUID().uuidString), \(bind: 0))").run()
-            _ = try rq.raw(sql: "SELECT * FROM foo").all(decoding: Model.self)
+            XCTAssertEqual(try rq.raw(sql: "SELECT * FROM foo").all(decoding: Model.self).count, 1)
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
