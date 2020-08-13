@@ -1,4 +1,5 @@
 @testable import Sublimate
+import FluentKit
 import XCTFluent
 import XCTest
 import Vapor
@@ -39,6 +40,18 @@ class SublimateRawBuilderTests: CO₂TestCase {
         }
     }
 
+    func testFirstDecodingModel() throws {
+        app.routes.get("foo", use: sublimate { rq in
+            try rq.raw(sql: "CREATE TABLE foo (id UUID PRIMARY KEY, bar INTEGER NOT NULL)").run()
+            try rq.raw(sql: "INSERT INTO foo (id, bar) VALUES (\(bind: UUID().uuidString), \(bind: 0))").run()
+            _ = try rq.raw(sql: "SELECT * FROM foo").first(decoding: Model.self)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
     func testAll() throws {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
@@ -63,6 +76,19 @@ class SublimateRawBuilderTests: CO₂TestCase {
         }
     }
 
+    func testAllDecodingModel() throws {
+        app.routes.get("foo", use: sublimate { rq in
+            try rq.raw(sql: "CREATE TABLE foo (id UUID PRIMARY KEY, bar INTEGER NOT NULL)").run()
+            try rq.raw(sql: "INSERT INTO foo (id, bar) VALUES (\(bind: UUID().uuidString), \(bind: 0))").run()
+            _ = try rq.raw(sql: "SELECT * FROM foo").all(decoding: Model.self)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
+
     func testThrows() throws {
         let db = ArrayTestDatabase()
         try db.sublimate { db in
@@ -81,4 +107,11 @@ private extension TestDatabase {
             try closure(CO₂DB(db: self.db))
         }
     }
+}
+
+private final class Model: FluentKit.Model {
+    public init() {}
+    @ID(key: .id) var id: UUID?
+    @Field(key: "bar") var baz: Int
+    static let schema = "foo"
 }

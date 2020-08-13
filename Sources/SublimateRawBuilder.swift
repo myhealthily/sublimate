@@ -1,5 +1,7 @@
 import class Vapor.Request
 import struct Vapor.Abort
+import FluentKit
+import FluentSQL
 import SQLKit
 
 /// Sublimate utility object wrapping a SQLKit `SQLRawBuilder` object.
@@ -20,6 +22,16 @@ public final class SublimateRawBuilder {
     @inlinable
     public func first() throws -> SQLRow? {
         try kernel.first().wait()
+    }
+
+    @inlinable
+    public func first<Model>(decoding model: Model.Type) throws -> Model? where Model: FluentKit.Model {
+        try kernel.first(decoding: Model.self).wait()
+    }
+
+    @inlinable
+    public func all<Model>(decoding models: Model.Type) throws -> [Model] where Model: FluentKit.Model {
+        try kernel.all(decoding: models).wait()
     }
 
     @inlinable

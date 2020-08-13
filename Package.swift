@@ -14,7 +14,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.3.0"),
         .package(url: "https://github.com/vapor/fluent", from: "4.0.0"),
-        .package(url: "https://github.com/vapor/fluent-kit", from: "1.4.1"),
+        .package(url: "https://github.com/vapor/fluent-kit", from: "1.7.0"),
         .package(url: "https://github.com/vapor/sql-kit.git", from: "3.1.0"),
         .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0")
     ],
