@@ -219,6 +219,7 @@ extension CO₂Tests {
             _ = rq.headers
             _ = rq.parameters
             _ = rq.client
+            _ = rq.query
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
