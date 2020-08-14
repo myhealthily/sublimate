@@ -1,3 +1,4 @@
+import protocol Vapor.URLQueryContainer
 import protocol Vapor.ContentContainer
 import protocol FluentKit.Database
 import protocol Fluent.Database
@@ -44,4 +45,6 @@ public extension CO₂ {
     @inlinable var parameters: Parameters { rq.parameters }
     /// - Returns: Returns the Vapor `Request`’s `HTTPHeaders`.
     @inlinable var headers: HTTPHeaders { rq.headers }
+    /// - Returns: Returns the Vapor `Request`’s `URLQueryContainer`.
+    @inlinable var query: URLQueryContainer { rq.query }
 }
