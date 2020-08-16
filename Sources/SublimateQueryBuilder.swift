@@ -78,6 +78,25 @@ public extension SublimateQueryBuilder {
         try kernel.first().wait()
     }
 
+    func first<With: FluentKit.Model>(with other: With.Type) throws -> (Model, With)? {
+        if let foo = try kernel.first().wait() {
+            let bar = try foo.joined(other)
+            return (foo, bar)
+        } else {
+            return nil
+        }
+    }
+
+    func first<With: FluentKit.Model, And: FluentKit.Model>(with: With.Type, _ and: And.Type) throws -> (Model, With, And)? {
+        if let foo = try kernel.first().wait() {
+            let bar = try foo.joined(with)
+            let baz = try foo.joined(and)
+            return (foo, bar, baz)
+        } else {
+            return nil
+        }
+    }
+
     func first(or _: CO₂.QueryOptions? = nil, file: String = #file, line: UInt = #line) throws -> Model {
         guard let foo = try kernel.first().wait() else {
             throw Abort(.notFound, reason: "\(Model.self)s not found for this input.", file: file, line: line)

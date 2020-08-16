@@ -39,7 +39,7 @@ public final class SublimateRawBuilder {
     }
 
     @inlinable
-    public func first<T: Decodable>(or: CO₂.QueryOptions, decoding model: T.Type, file: String = #file, line: UInt = #line) throws -> T? {
+    public func first<T: Decodable>(or: CO₂.QueryOptions, decoding model: T.Type, file: String = #file, line: UInt = #line) throws -> T {
         guard let foo = try kernel.first(decoding: model).wait() else {
             throw Abort(.notFound, reason: "Cannot decode `\(T.self)` for this input.", file: file, line: line)
         }
@@ -47,7 +47,7 @@ public final class SublimateRawBuilder {
     }
 
     @inlinable
-    public func first<Model>(or: CO₂.QueryOptions, decoding model: Model.Type, file: String = #file, line: UInt = #line) throws -> Model?where Model: FluentKit.Model {
+    public func first<Model>(or: CO₂.QueryOptions, decoding model: Model.Type, file: String = #file, line: UInt = #line) throws -> Model where Model: FluentKit.Model {
         guard let foo = try kernel.first(decoding: model).wait() else {
             throw Abort(.notFound, reason: "\(Model.self)s not found for this input.", file: file, line: line)
         }
