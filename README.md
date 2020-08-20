@@ -203,6 +203,10 @@ let route = sublimate(in: .transaction) { rq in
 We have tried to provide sublimation for everything Vapor and Fluent provide, so generally you should
 find it just works.
 
+### Migrating to Sublimate
+
+Try it out on one route first to see how you like it, you don’t have to be all-in to use Sublimate.
+
 ### Transactions
 
 Use `sublimate(in: .transaction, use: myRoute)` and the entire route will be performed in a transaction.
