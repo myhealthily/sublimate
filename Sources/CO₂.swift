@@ -6,6 +6,7 @@ import struct Vapor.HTTPHeaders
 import struct Vapor.Parameters
 import protocol NIO.EventLoop
 import protocol Vapor.Client
+import struct Vapor.Logger
 import class Vapor.Request
 
 /// Sublimate utility object wrapping a Fluent `Database` object.
@@ -47,4 +48,6 @@ public extension CO₂ {
     @inlinable var headers: HTTPHeaders { rq.headers }
     /// - Returns: Returns the Vapor `Request`’s `URLQueryContainer`.
     @inlinable var query: URLQueryContainer { rq.query }
+    /// - Returns: Returns the Vapor `Request`’s `Logger`.
+    @inlinable var logger: Logger { rq.logger }
 }
