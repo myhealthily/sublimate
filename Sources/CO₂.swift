@@ -4,6 +4,7 @@ import protocol FluentKit.Database
 import protocol Fluent.Database
 import struct Vapor.HTTPHeaders
 import struct Vapor.Parameters
+import class Vapor.Application
 import protocol NIO.EventLoop
 import protocol Vapor.Client
 import struct Vapor.Logger
@@ -50,4 +51,6 @@ public extension CO₂ {
     @inlinable var query: URLQueryContainer { rq.query }
     /// - Returns: Returns the Vapor `Request`’s `Logger`.
     @inlinable var logger: Logger { rq.logger }
+    /// - Returns: Returns the Vapor `Application`.
+    @inlinable var application: Application { rq.application }
 }
