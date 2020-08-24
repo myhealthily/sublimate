@@ -102,12 +102,46 @@ final class FluentTests: CO₂TestCase {
 
     func testFirstWith() throws {
         try db.sublimate { db in
+            let tuple = try Planet.query(on: db)
+                .join(Star.self, on: \Planet.$star.$id == \.$id)
+                .first(with: Star.self)
+
+            XCTAssertEqual(tuple?.0.$star.id, tuple?.1.id)
+            XCTAssertEqual(tuple?.1.name, "The Sun")
+
+            XCTAssertThrowsError(try Planet.query(on: db)
+                .join(Star.self, on: \Planet.$star.$id == \.$id)
+                .filter(Planet.self, \.$name == "Saturn")
+                .first(or: .abort, with: Star.self))
+        }.wait()
+    }
+
+    func testFirstWithOrAbort() throws {
+        try db.sublimate { db in
             let (planet, star) = try Planet.query(on: db)
                 .join(Star.self, on: \Planet.$star.$id == \.$id)
                 .first(or: .abort, with: Star.self)
 
             XCTAssertEqual(planet.$star.id, star.id)
             XCTAssertEqual(star.name, "The Sun")
+
+            XCTAssertThrowsError(try Planet.query(on: db)
+                .join(Star.self, on: \Planet.$star.$id == \.$id)
+                .filter(Planet.self, \.$name == "Saturn")
+                .first(or: .abort, with: Star.self))
+        }.wait()
+    }
+
+    func testFirstWithAnd() throws {
+        try db.sublimate { db in
+            let tuple = try Planet.query(on: db)
+                .join(Star.self, on: \Planet.$star.$id == \.$id)
+                .first(with: Star.self, Star.self)
+
+            XCTAssertEqual(tuple?.0.$star.id, tuple?.1.id)
+            XCTAssertEqual(tuple?.0.$star.id, tuple?.2.id)
+            XCTAssertEqual(tuple?.1.name, "The Sun")
+            XCTAssertEqual(tuple?.2.name, "The Sun")
 
             XCTAssertThrowsError(try Planet.query(on: db)
                 .join(Star.self, on: \Planet.$star.$id == \.$id)

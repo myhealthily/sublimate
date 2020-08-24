@@ -28,6 +28,20 @@ class SublimateRawBuilderTests: CO₂TestCase {
         }
     }
 
+    func testFirstOrAbort() throws {
+        app.routes.get("foo", use: sublimate { rq in
+            try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
+            XCTAssertThrowsError(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort))
+
+            try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
+            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first())
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
     func testFirstDecoding() throws {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
@@ -40,9 +54,37 @@ class SublimateRawBuilderTests: CO₂TestCase {
         }
     }
 
+    func testFirstDecodingOrAbort() throws {
+        app.routes.get("foo", use: sublimate { rq in
+            try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
+            XCTAssertThrowsError(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort, decoding: Row.self))
+
+            try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
+            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(decoding: Row.self))
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
     func testFirstDecodingModel() throws {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id UUID PRIMARY KEY, bar INTEGER NOT NULL)").run()
+            try rq.raw(sql: "INSERT INTO foo (id, bar) VALUES (\(bind: UUID().uuidString), \(bind: 0))").run()
+            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(decoding: Model.self))
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
+
+    func testFirstDecodingModelOrAbort() throws {
+        app.routes.get("foo", use: sublimate { rq in
+            try rq.raw(sql: "CREATE TABLE foo (id UUID PRIMARY KEY, bar INTEGER NOT NULL)").run()
+            XCTAssertThrowsError(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort, decoding: Model.self))
+
             try rq.raw(sql: "INSERT INTO foo (id, bar) VALUES (\(bind: UUID().uuidString), \(bind: 0))").run()
             XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(decoding: Model.self))
         })
