@@ -34,7 +34,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertThrowsError(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort))
 
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
-            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first())
+            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort))
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -60,7 +60,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertThrowsError(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort, decoding: Row.self))
 
             try rq.raw(sql: "INSERT INTO foo (id) VALUES (0)").run()
-            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(decoding: Row.self))
+            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort, decoding: Row.self))
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
@@ -72,7 +72,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id UUID PRIMARY KEY, bar INTEGER NOT NULL)").run()
             try rq.raw(sql: "INSERT INTO foo (id, bar) VALUES (\(bind: UUID().uuidString), \(bind: 0))").run()
-            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(decoding: Model.self))
+            XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort, decoding: Model.self))
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo") {
