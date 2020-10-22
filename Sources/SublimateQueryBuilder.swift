@@ -74,6 +74,24 @@ public extension SublimateQueryBuilder {
     }
 
     @inlinable
+    func limit(_ count: Int) -> Self {
+        kernel.query.limits.append(.count(count))
+        return self
+    }
+
+    @inlinable
+    func offset(_ count: Int) -> Self {
+        kernel.query.offsets.append(.count(count))
+        return self
+    }
+
+    @inlinable
+    func unique() -> Self {
+        kernel.query.isUnique = true
+        return self
+    }
+
+    @inlinable
     func first() throws -> Model? {
         try kernel.first().wait()
     }
