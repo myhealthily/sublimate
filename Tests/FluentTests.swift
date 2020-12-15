@@ -9,7 +9,10 @@ final class FluentTests: CO₂TestCase {
 
     override func setUp() {
         input = [
-            (Star(name: "The Sun"), [Planet(name: "Mercury"), Planet(name: "Venus"), Planet(name: "Earth")])
+            (Star(name: "The Sun", distance: 149_597_870), [Planet(name: "Mercury"), Planet(name: "Venus"), Planet(name: "Earth")]),
+            (Star(name: "Proxima Centauri", distance: 40_208_000_000_000), []),
+            (Star(name: "Alpha Centauri A"), []),
+            (Star(name: "Alpha Centauri B"), [])
         ]
         super.setUp()
     }
@@ -97,6 +100,50 @@ final class FluentTests: CO₂TestCase {
             XCTAssertEqual(
                 try Star.query(on: db).count(),
                 self.input.count)
+        }.wait()
+    }
+
+    func testCountField() throws {
+        try db.sublimate { db in
+            XCTAssertEqual(
+                try Star.query(on: db).count(\.$distance),
+                2)
+        }.wait()
+    }
+
+    func testSum() throws {
+        try db.sublimate { db in
+            XCTAssertEqual(
+                try Star.query(on: db).sum(\.$distance),
+                self.input.compactMap { (star, _) -> Double? in
+                    return star.distance
+                }.reduce(0, +))
+        }.wait()
+    }
+
+    func testAverage() throws {
+        try db.sublimate { db in
+            let starsAverageDistance = try Star.query(on: db).average(\.$distance)!
+            let distances = self.input.compactMap { (star, _) -> Double? in
+                return star.distance
+            }
+            XCTAssertEqual(starsAverageDistance, distances.reduce(0, +) / Double(distances.count))
+        }.wait()
+    }
+
+    func testMin() throws {
+        try db.sublimate { db in
+            let minStar = try Star.query(on: db).min(\.$distance)!
+            let min = self.input.compactMap { $0.0.distance }.min()!
+            XCTAssertEqual(minStar, min)
+        }.wait()
+    }
+
+    func testMax() throws {
+        try db.sublimate { db in
+            let maxStar = try Star.query(on: db).max(\.$distance)!
+            let max = self.input.compactMap { $0.0.distance }.max()!
+            XCTAssertEqual(maxStar, max)
         }.wait()
     }
 
@@ -190,6 +237,35 @@ final class FluentTests: CO₂TestCase {
         }.wait()
     }
 
+    func testLimit() throws {
+        try db.sublimate { db in
+            let stars = try Star.query(on: db)
+                .limit(1)
+                .all()
+            XCTAssertEqual(stars, [self.input[0].0])
+        }.wait()
+    }
+
+    func testOffset() throws {
+        try db.sublimate { db in
+            let stars = try Star.query(on: db)
+                .limit(2)
+                .offset(1)
+                .all()
+            XCTAssertEqual(stars, self.input[1...2].map { $0.0 })
+        }.wait()
+    }
+
+    func testUnique() throws {
+        try db.sublimate { db in
+            let stars = try Star.query(on: db)
+                .join(Planet.self, on: \Star.$id == \.$star.$id)
+                .filter(Star.self, \.$name == "The Sun")
+                .all()
+            XCTAssertEqual(stars.first?.name, "The Sun")
+        }.wait()
+    }
+
     func testGroup() throws {
         try db.sublimate { db in
             let planets = try Planet.query(on: db)
@@ -204,13 +280,15 @@ final class FluentTests: CO₂TestCase {
 private final class Star: Model {
     @ID(key: .id) var id: UUID?
     @Field(key: "name") var name: String
+    @Field(key: "distance") var distance: Double? // in km
     @Children(for: \.$star) var planets: [Planet]
 
     init()
     {}
 
-    init(name: String) {
+    init(name: String, distance: Double? = nil) {
         self.name = name
+        self.distance = distance
     }
 
     static let schema = "stars"
@@ -244,6 +322,7 @@ private struct Migration: SublimateMigration {
         try db.schema(Star.schema)
             .id()
             .field("name", .string, .required)
+            .field("distance", .double)
             .create()
         try db.schema(Planet.schema)
             .id()

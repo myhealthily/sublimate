@@ -92,6 +92,11 @@ public extension SublimateQueryBuilder {
     }
 
     @inlinable
+    func chunk(max: Int, closure: @escaping ([Result<Model, Error>]) -> ()) throws -> Void {
+        try kernel.chunk(max: max, closure: closure).wait()
+    }
+
+    @inlinable
     func first() throws -> Model? {
         try kernel.first().wait()
     }
@@ -128,11 +133,6 @@ public extension SublimateQueryBuilder {
         }
         let bar = try foo.joined(other)
         return (foo, bar)
-    }
-
-    @inlinable
-    func count() throws -> Int {
-        try kernel.count().wait()
     }
 
     @inlinable
@@ -234,5 +234,98 @@ public extension SublimateQueryBuilder {
     func sort(_ sort: DatabaseQuery.Sort) -> Self {
         _ = kernel.sort(sort)
         return self
+    }
+}
+
+public extension SublimateQueryBuilder {
+    @inlinable
+    func count() throws -> Int {
+        try kernel.count().wait()
+    }
+
+    @inlinable
+    func count<Field>(_ key: KeyPath<Model, Field>) throws -> Int
+        where
+            Field: QueryableProperty,
+            Field.Model == Model
+    {
+        try kernel.count(key).wait()
+    }
+
+    @inlinable
+    func sum<Field>(_ key: KeyPath<Model, Field>) throws -> Field.Value?
+        where
+            Field: QueryableProperty,
+            Field.Model == Model
+    {
+        try kernel.sum(key).wait()
+    }
+
+    @inlinable
+    func sum<Field>(_ key: KeyPath<Model, Field>) throws -> Field.Value
+        where
+            Field: QueryableProperty,
+            Field.Value: OptionalType,
+            Field.Model == Model
+    {
+        try kernel.sum(key).wait()
+    }
+
+
+    @inlinable
+    func average<Field>(_ key: KeyPath<Model, Field>) throws -> Field.Value?
+        where
+            Field: QueryableProperty,
+            Field.Model == Model
+    {
+        try kernel.average(key).wait()
+    }
+
+    @inlinable
+    func average<Field>(_ key: KeyPath<Model, Field>) throws -> Field.Value
+        where
+            Field: QueryableProperty,
+            Field.Value: OptionalType,
+            Field.Model == Model
+    {
+        try kernel.average(key).wait()
+    }
+
+    @inlinable
+    func min<Field>(_ key: KeyPath<Model, Field>) throws -> Field.Value?
+        where
+            Field: QueryableProperty,
+            Field.Model == Model
+    {
+        try kernel.min(key).wait()
+    }
+
+    @inlinable
+    func min<Field>(_ key: KeyPath<Model, Field>) throws -> Field.Value
+        where
+            Field: QueryableProperty,
+            Field.Value: OptionalType,
+            Field.Model == Model
+    {
+        try kernel.min(key).wait()
+    }
+
+    @inlinable
+    func max<Field>(_ key: KeyPath<Model, Field>) throws -> Field.Value?
+        where
+            Field: QueryableProperty,
+            Field.Model == Model
+    {
+        try kernel.max(key).wait()
+    }
+
+    @inlinable
+    func max<Field>(_ key: KeyPath<Model, Field>) throws -> Field.Value
+        where
+            Field: QueryableProperty,
+            Field.Value: OptionalType,
+            Field.Model == Model
+    {
+        try kernel.max(key).wait()
     }
 }
