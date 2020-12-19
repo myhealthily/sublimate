@@ -6,15 +6,15 @@ import XCTest
 import Vapor
 
 final class CO₂Tests: CO₂TestCase {
+    func isOK(_ res: XCTHTTPResponse) throws { XCTAssertEqual(res.status, .ok) }
+
     func testHTTPStatus() throws {
         app.routes.get("foo", use: sublimate { rq -> HTTPStatus in
             XCTAssertFalse(rq.db.inTransaction)
             return .ok
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testHTTPResponse() throws {
@@ -23,9 +23,7 @@ final class CO₂Tests: CO₂TestCase {
             return Response(status: .ok)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testVoid() throws {
@@ -36,9 +34,7 @@ final class CO₂Tests: CO₂TestCase {
             foo = true
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") { _ in
-            XCTAssert(foo)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: { _ in XCTAssert(foo) })
     }
 
     func testEncodable() throws {
@@ -47,10 +43,10 @@ final class CO₂Tests: CO₂TestCase {
             return Encodable(foo: true)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: {
             let rsp = try $0.content.decode(Decodable.self)
             XCTAssertEqual(rsp.foo, true)
-        }
+        })
     }
 
     func testTransactionHTTPStatus() throws {
@@ -59,9 +55,7 @@ final class CO₂Tests: CO₂TestCase {
             return .ok
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testTransactionVoid() throws {
@@ -72,9 +66,7 @@ final class CO₂Tests: CO₂TestCase {
             foo = true
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") { _ in
-            XCTAssert(foo)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: { _ in XCTAssert(foo) })
     }
 
     func testTransactionHTTPResponse() throws {
@@ -86,10 +78,10 @@ final class CO₂Tests: CO₂TestCase {
             return Response(status: .ok)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: {
+            try isOK($0)
             XCTAssert(foo)
-        }
+        })
     }
 
     func testTransactionEncodable() throws {
@@ -101,11 +93,11 @@ final class CO₂Tests: CO₂TestCase {
             return Encodable(foo: true)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: {
             let rsp = try $0.content.decode(Decodable.self)
             XCTAssertEqual(rsp.foo, true)
             XCTAssert(foo)
-        }
+        })
     }
 }
 
@@ -117,9 +109,7 @@ extension CO₂Tests {
             return .ok
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: { XCTAssertEqual($0.status, .ok) })
     }
 
     func testAuthedHTTPResponse() throws {
@@ -129,9 +119,7 @@ extension CO₂Tests {
             return Response(status: .ok)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: { XCTAssertEqual($0.status, .ok) })
     }
 
     func testAuthedVoid() throws {
@@ -140,9 +128,7 @@ extension CO₂Tests {
             XCTAssertEqual(user.name, "CO₂")
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testAuthedEncodable() throws {
@@ -152,11 +138,11 @@ extension CO₂Tests {
             return Encodable(foo: true)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: {
             let rsp = try $0.content.decode(Decodable.self)
             XCTAssertEqual(rsp.foo, true)
-            XCTAssertEqual($0.status, .ok)
-        }
+            try isOK($0)
+        })
     }
 
     func testAuthedTransactionHTTPStatus() throws {
@@ -166,9 +152,7 @@ extension CO₂Tests {
             return .ok
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testAuthedTransactionVoid() throws {
@@ -177,9 +161,7 @@ extension CO₂Tests {
             XCTAssertEqual(user.name, "CO₂")
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testAuthedTransactionHTTPResponse() throws {
@@ -189,9 +171,7 @@ extension CO₂Tests {
             return Response(status: .ok)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testAuthedTransactionEncodable() throws {
@@ -201,11 +181,11 @@ extension CO₂Tests {
             return Encodable(foo: true)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: {
             let rsp = try $0.content.decode(Decodable.self)
             XCTAssertEqual(rsp.foo, true)
-            XCTAssertEqual($0.status, .ok)
-        }
+            try isOK($0)
+        })
     }
 }
 
@@ -224,9 +204,7 @@ extension CO₂Tests {
             _ = rq.application
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 }
 

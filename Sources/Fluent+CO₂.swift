@@ -21,9 +21,8 @@ public extension Model {
     static func find(_ id: IDValue?, on subl: CO₂DB) throws -> Self? {
         if let id = id {
             return try find(id, on: subl.db).wait()
-        } else {
-            return nil
         }
+        return nil
     }
 
     static func find(or _: CO₂.QueryOptions, id: IDValue?, on subl: CO₂DB, file: String = #file, line: UInt = #line) throws -> Self {
@@ -31,9 +30,8 @@ public extension Model {
             return try find(id, on: subl.db)
                 .unwrap(or: Abort(.notFound, reason: "\(type(of: self)) not found for ID: \(id)", file: file, line: line))
                 .wait()
-        } else {
-            throw Abort(.badRequest, reason: "\(type(of: self)) not found for `nil` ID", file: file, line: line)
         }
+        throw Abort(.badRequest, reason: "\(type(of: self)) not found for `nil` ID", file: file, line: line)
     }
 
     @discardableResult
@@ -100,5 +98,10 @@ public extension ChildrenProperty {
     @inlinable
     func create(_ to: To, on subl: CO₂DB) throws {
         try create(to, on: subl.db).wait()
+    }
+
+    @inlinable
+    func load(on subl: CO₂DB) throws {
+        try load(on: subl.db).wait()
     }
 }

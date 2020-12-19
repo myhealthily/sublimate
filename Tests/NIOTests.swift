@@ -11,11 +11,11 @@ class NIOTests: CO₂TestCase {
             return try [f1, f2].flatten(on: rq)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: {
             let rsp = try $0.content.decode([String].self)
             XCTAssertEqual(rsp, ["1", "2"])
             XCTAssertEqual($0.status, .ok)
-        }
+        })
     }
 
     func testCollectionFlattenVoid() throws {
@@ -25,9 +25,7 @@ class NIOTests: CO₂TestCase {
             return try [f1, f2].flatten(on: rq)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: { XCTAssertEqual($0.status, .ok) })
     }
 
     func testFail() throws {
@@ -35,8 +33,6 @@ class NIOTests: CO₂TestCase {
             throw Abort(.notFound)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .notFound)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: { XCTAssertEqual($0.status, .notFound) })
     }
 }

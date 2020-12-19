@@ -9,10 +9,10 @@ final class FluentTests: CO₂TestCase {
 
     override func setUp() {
         input = [
-            (Star(name: "The Sun", distance: 149_597_870), [Planet(name: "Mercury"), Planet(name: "Venus"), Planet(name: "Earth")]),
-            (Star(name: "Proxima Centauri", distance: 40_208_000_000_000), []),
-            (Star(name: "Alpha Centauri A"), []),
-            (Star(name: "Alpha Centauri B"), [])
+            (Star(name: "The Sun", distance: 149_597_870, mass: 1.939e30), [Planet(name: "Mercury"), Planet(name: "Venus"), Planet(name: "Earth")]),
+            (Star(name: "Proxima Centauri", distance: 40_208_000_000_000, mass: 2.446e29), []),
+            (Star(name: "Alpha Centauri A", mass: 2.188e30), []),
+            (Star(name: "Alpha Centauri B", mass: 1.804e30), [])
         ]
         super.setUp()
     }
@@ -89,6 +89,46 @@ final class FluentTests: CO₂TestCase {
         }.wait()
     }
 
+    func testArrayDelete() throws {
+        try db.sublimate { db in
+            let planets = try Planet.query(on: db).filter(\.$name == "Earth").all()
+            try planets.delete(on: db)
+            XCTAssertEqual(try Planet.query(on: db).count(), 2)
+        }.wait()
+    }
+
+    func testArrayCreate() throws {
+        try db.sublimate { db in
+            try [
+                Star(name: "Barnard's Star", mass: 2.864e29),
+                Star(name: "Wolf 359", mass: 1.79e29),
+            ].create(on: db)
+            XCTAssertEqual(try Star.query(on: db).count(), self.input.count + 2)
+        }.wait()
+    }
+
+    func testFind() throws {
+        try db.sublimate { db in
+            let first = try Star.query(on: db).first()!
+            XCTAssertEqual(first, try Star.find(first.id, on: db))
+            XCTAssertNil(try Star.find(UUID(), on: db))
+            XCTAssertNil(try Star.find(nil, on: db))
+
+            XCTAssertEqual(first, try Star.find(or: .abort, id: first.id, on: db))
+            XCTAssertThrowsError(try Star.find(or: .abort, id: UUID(), on: db))
+            XCTAssertThrowsError(try Star.find(or: .abort, id: nil, on: db))
+        }.wait()
+    }
+
+    func testSave() throws {
+        try db.sublimate { db in
+            let star = try Star.query(on: db).first()!
+            star.name = "Some other star"
+            try star.save(on: db)
+            XCTAssertEqual(star, try Star.find(star.id, on: db))
+        }.wait()
+    }
+
     func testExists() throws {
         try db.sublimate { db in
             XCTAssertTrue(try Star.query(on: db).filter(\.$name == "The Sun").exists())
@@ -115,35 +155,47 @@ final class FluentTests: CO₂TestCase {
         try db.sublimate { db in
             XCTAssertEqual(
                 try Star.query(on: db).sum(\.$distance),
-                self.input.compactMap { (star, _) -> Double? in
-                    return star.distance
-                }.reduce(0, +))
+                self.input.compactMap(\.0.distance).reduce(0, +))
+
+            XCTAssertEqual(
+                try Star.query(on: db).sum(\.$mass),
+                self.input.map(\.0.mass).reduce(0, +))
         }.wait()
     }
 
     func testAverage() throws {
         try db.sublimate { db in
             let starsAverageDistance = try Star.query(on: db).average(\.$distance)!
-            let distances = self.input.compactMap { (star, _) -> Double? in
-                return star.distance
-            }
+            let distances = self.input.compactMap(\.0.distance)
             XCTAssertEqual(starsAverageDistance, distances.reduce(0, +) / Double(distances.count))
+
+            let starsAverageMass = try Star.query(on: db).average(\.$mass)
+            let masses = self.input.map(\.0.mass)
+            XCTAssertEqual(starsAverageMass, masses.reduce(0, +) / Double(masses.count))
         }.wait()
     }
 
     func testMin() throws {
         try db.sublimate { db in
-            let minStar = try Star.query(on: db).min(\.$distance)!
-            let min = self.input.compactMap { $0.0.distance }.min()!
-            XCTAssertEqual(minStar, min)
+            let minDistance = try Star.query(on: db).min(\.$distance)!
+            let minDistance2 = self.input.compactMap { $0.0.distance }.min()!
+            XCTAssertEqual(minDistance, minDistance2)
+
+            let minMass = try Star.query(on: db).min(\.$mass)
+            let minMass2 = self.input.map(\.0.mass).min()
+            XCTAssertEqual(minMass, minMass2)
         }.wait()
     }
 
     func testMax() throws {
         try db.sublimate { db in
-            let maxStar = try Star.query(on: db).max(\.$distance)!
-            let max = self.input.compactMap { $0.0.distance }.max()!
-            XCTAssertEqual(maxStar, max)
+            let maxDistance = try Star.query(on: db).max(\.$distance)!
+            let maxDistance2 = self.input.compactMap { $0.0.distance }.max()!
+            XCTAssertEqual(maxDistance, maxDistance2)
+
+            let maxMass = try Star.query(on: db).max(\.$mass)
+            let maxMass2 = self.input.map(\.0.mass).max()
+            XCTAssertEqual(maxMass, maxMass2)
         }.wait()
     }
 
@@ -160,6 +212,11 @@ final class FluentTests: CO₂TestCase {
                 .join(Star.self, on: \Planet.$star.$id == \.$id)
                 .filter(Planet.self, \.$name == "Saturn")
                 .first(or: .abort, with: Star.self))
+
+            XCTAssertNil(try Planet.query(on: db)
+                .join(Star.self, on: \Planet.$star.$id == \.$id)
+                .filter(Planet.self, \.$name == "Tiny Planet")
+                .first(with: Star.self))
         }.wait()
     }
 
@@ -194,6 +251,11 @@ final class FluentTests: CO₂TestCase {
                 .join(Star.self, on: \Planet.$star.$id == \.$id)
                 .filter(Planet.self, \.$name == "Saturn")
                 .first(or: .abort, with: Star.self))
+
+            XCTAssertNil(try Planet.query(on: db)
+                .join(Star.self, on: \Planet.$star.$id == \.$id)
+                .filter(Planet.self, \.$name == "Tiny Planet")
+                .first(with: Star.self, Star.self))
         }.wait()
     }
 
@@ -261,8 +323,20 @@ final class FluentTests: CO₂TestCase {
             let stars = try Star.query(on: db)
                 .join(Planet.self, on: \Star.$id == \.$star.$id)
                 .filter(Star.self, \.$name == "The Sun")
+                .unique()
                 .all()
             XCTAssertEqual(stars.first?.name, "The Sun")
+        }.wait()
+    }
+
+    func testChunk() throws {
+        try db.sublimate { db in
+            var total = 0
+            try Star.query(on: db).chunk(max: 1) { star in
+                XCTAssertEqual(star.count, 1)
+                total += 1
+            }
+            XCTAssertEqual(total, 4)
         }.wait()
     }
 
@@ -275,20 +349,52 @@ final class FluentTests: CO₂TestCase {
             XCTAssertEqual(planets.count, 1)
         }.wait()
     }
+
+    func testParent() throws {
+        try db.sublimate { db in
+            let earth = try Planet.query(on: db).filter(\.$name == "Earth").first()!
+            let sun = try earth.$star.query(on: db).first()!
+            XCTAssertEqual(sun, self.input.first(where: { $0.0.name == "The Sun" })!.0)
+
+            XCTAssertEqual(sun, try earth.$star.get(on: db))
+
+            try earth.$star.load(on: db)
+            XCTAssertEqual(sun, earth.star)
+        }.wait()
+    }
+
+    func testChildren() throws {
+        try db.sublimate { db in
+            let sun = try Star.query(on: db).filter(\.$name == "The Sun").first()!
+            let planets = try sun.$planets.query(on: db).all()
+            XCTAssertEqual(planets, self.input.first(where: { $0.0.name == "The Sun" })!.1)
+
+            XCTAssertEqual(planets, try sun.$planets.all(on: db))
+
+            try sun.$planets.load(on: db)
+            XCTAssertEqual(planets, sun.planets)
+
+            let mars = Planet(name: "Mars")
+            try sun.$planets.create(mars, on: db)
+            XCTAssertEqual(try sun.$planets.all(on: db), self.input.first(where: { $0.0.name == "The Sun" })!.1 + [mars])
+        }.wait()
+    }
 }
 
 private final class Star: Model {
     @ID(key: .id) var id: UUID?
     @Field(key: "name") var name: String
-    @Field(key: "distance") var distance: Double? // in km
+    @OptionalField(key: "distance") var distance: Double? // in km
+    @Field(key: "mass") var mass: Double // in kg
     @Children(for: \.$star) var planets: [Planet]
 
     init()
     {}
 
-    init(name: String, distance: Double? = nil) {
+    init(name: String, distance: Double? = nil, mass: Double) {
         self.name = name
         self.distance = distance
+        self.mass = mass
     }
 
     static let schema = "stars"
@@ -315,6 +421,12 @@ extension Star: Equatable {
     }
 }
 
+extension Planet: Equatable {
+    static func == (lhs: Planet, rhs: Planet) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
 private struct Migration: SublimateMigration {
     let input: [(Star, [Planet])]
 
@@ -323,6 +435,7 @@ private struct Migration: SublimateMigration {
             .id()
             .field("name", .string, .required)
             .field("distance", .double)
+            .field("mass", .double)
             .create()
         try db.schema(Planet.schema)
             .id()

@@ -1,19 +1,20 @@
 @testable import Sublimate
 import FluentKit
 import XCTFluent
+import XCTVapor
 import XCTest
 import Vapor
 
 class SublimateRawBuilderTests: CO₂TestCase {
+    func isOK(_ res: XCTHTTPResponse) throws { XCTAssertEqual(res.status, .ok) }
+
     func testRun() throws {
         app.routes.get("foo", use: sublimate { rq in
             try rq.raw(sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)").run()
             try rq.run(sql: "INSERT INTO foo (id) VALUES (0)")
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testFirst() throws {
@@ -23,9 +24,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first())
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testFirstOrAbort() throws {
@@ -37,9 +36,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort))
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testFirstDecoding() throws {
@@ -49,9 +46,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(decoding: Row.self))
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testFirstDecodingOrAbort() throws {
@@ -63,9 +58,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort, decoding: Row.self))
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testFirstDecodingModel() throws {
@@ -75,9 +68,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(or: .abort, decoding: Model.self))
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testFirstDecodingModelOrAbort() throws {
@@ -89,9 +80,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertNotNil(try rq.raw(sql: "SELECT * FROM foo").first(decoding: Model.self))
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testAll() throws {
@@ -101,9 +90,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertEqual(try rq.raw(sql: "SELECT * FROM foo").all().count, 1)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testAllDecoding() throws {
@@ -113,9 +100,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertEqual(try rq.raw(sql: "SELECT * FROM foo").all(decoding: Row.self).count, 1)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testAllDecodingModel() throws {
@@ -125,9 +110,7 @@ class SublimateRawBuilderTests: CO₂TestCase {
             XCTAssertEqual(try rq.raw(sql: "SELECT * FROM foo").all(decoding: Model.self).count, 1)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
 
