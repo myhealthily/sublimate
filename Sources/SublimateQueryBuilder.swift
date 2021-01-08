@@ -105,9 +105,8 @@ public extension SublimateQueryBuilder {
         if let foo = try kernel.first().wait() {
             let bar = try foo.joined(other)
             return (foo, bar)
-        } else {
-            return nil
         }
+        return nil
     }
 
     func first<With: FluentKit.Model, And: FluentKit.Model>(with: With.Type, _ and: And.Type) throws -> (Model, With, And)? {
@@ -115,9 +114,8 @@ public extension SublimateQueryBuilder {
             let bar = try foo.joined(with)
             let baz = try foo.joined(and)
             return (foo, bar, baz)
-        } else {
-            return nil
         }
+        return nil
     }
 
     func first(or _: CO₂.QueryOptions? = nil, file: String = #file, line: UInt = #line) throws -> Model {

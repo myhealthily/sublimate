@@ -1,5 +1,6 @@
 import Foundation
 import Sublimate
+import XCTVapor
 import Fluent
 import XCTest
 import Vapor
@@ -9,6 +10,8 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
     override var migrations: [Migration] {
         [Model.Migration(), SoftDeleteModel.Migration()]
     }
+
+    func isOK(_ res: XCTHTTPResponse) throws { XCTAssertEqual(res.status, .ok) }
 
     func testCreate() throws {
         class MW: SublimateModelMiddleware {
@@ -25,10 +28,10 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
             return try Model().create(on: rq)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: {
             XCTAssertEqual(try $0.content.decode(Model.self).id, .zero)
-            XCTAssertEqual($0.status, .ok)
-        }
+            try isOK($0)
+        })
     }
 
     func testUpdate() throws {
@@ -54,12 +57,12 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
             return rv
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: {
+            try isOK($0)
             let model = try $0.content.decode(Model.self)
             XCTAssertTrue(model.foo)
             XCTAssertEqual(model.id, .zero)
-        }
+        })
     }
 
     func testDelete() throws {
@@ -80,9 +83,7 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
             XCTAssertNil(try Model.query(on: rq).first())
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testSoftDelete() throws {
@@ -103,9 +104,7 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
             XCTAssertNil(try SoftDeleteModel.query(on: rq).first())
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testRestore() throws {
@@ -128,9 +127,7 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
             XCTAssertEqual(try SoftDeleteModel.query(on: rq).first(or: .abort).id, .zero)
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 
     func testDefaults() throws {
@@ -165,9 +162,7 @@ class SublimateModelMiddlewareTests: CO₂TestCase {
             }
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)
     }
 }
 

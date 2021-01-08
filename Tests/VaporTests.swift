@@ -10,9 +10,7 @@ class VaporTests: CO₂TestCase {
             }
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: { XCTAssertEqual($0.status, .ok) })
     }
 
     func testDatabaseSublimate() throws {
@@ -22,8 +20,6 @@ class VaporTests: CO₂TestCase {
             }
         })
 
-        try app.testable(method: .inMemory).test(.GET, "foo") {
-            XCTAssertEqual($0.status, .ok)
-        }
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: { XCTAssertEqual($0.status, .ok) })
     }
 }
