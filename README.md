@@ -219,6 +219,7 @@ We provide `SublimateModelMiddleware`.
 
 ```swift
 package.dependencies.append(.package(
+    name: "Sublimate",
     url: "https://github.com/candor/sublimate.git",
     from: "1.0.0"
 ))
@@ -227,9 +228,7 @@ package.dependencies.append(.package(
 Then a target will need to depend on Sublimate:
 
 ```swift
-.target(name: …, dependencies: [
-    .product(name: "Sublimate", package: "Sublimate"),
-]),
+.target(name: …, dependencies: ["Sublimate"]),
 ```
 
 ## How it works
