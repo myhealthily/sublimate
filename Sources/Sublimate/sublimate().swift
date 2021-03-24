@@ -1,12 +1,5 @@
-import enum NIOHTTP1.HTTPResponseStatus
-import protocol Vapor.ResponseEncodable
-import protocol Vapor.Authenticatable
-import class Dispatch.DispatchQueue
 import protocol FluentKit.Database
-import class NIO.EventLoopFuture
-import protocol NIO.EventLoop
-import class Vapor.Response
-import class Vapor.Request
+import Vapor
 
 /**
  Creates a sublimate routable for a route that returns `Vapor.Response`
@@ -20,7 +13,7 @@ import class Vapor.Request
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
 @_disfavoredOverload
-public func sublimate(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate(in options: CO₂.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         options.go(on: rq) { db in
             try closure(CO₂(rq: rq, db: db))
@@ -39,7 +32,7 @@ public func sublimate(in options: CO₂DB.RouteOptions? = nil, use closure: @esc
 
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
-public func sublimate(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
+public func sublimate(in options: CO₂.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
     return { rq in
         options.go(on: rq) { db in
             try closure(CO₂(rq: rq, db: db))
@@ -62,7 +55,7 @@ public func sublimate(in options: CO₂DB.RouteOptions? = nil, use closure: @esc
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
 @_disfavoredOverload
-public func sublimate<User: Authenticatable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate<User: Authenticatable>(in options: CO₂.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> Response) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         let user = try rq.auth.require(User.self)
         return options.go(on: rq) { db in
@@ -85,7 +78,7 @@ public func sublimate<User: Authenticatable>(in options: CO₂DB.RouteOptions? =
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
 @_disfavoredOverload
-public func sublimate<E: ResponseEncodable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate<E: ResponseEncodable>(in options: CO₂.RouteOptions? = nil, use closure: @escaping (CO₂) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         options.go(on: rq) { db in
             try closure(CO₂(rq: rq, db: db)).encodeResponse(for: rq).wait()
@@ -108,7 +101,7 @@ public func sublimate<E: ResponseEncodable>(in options: CO₂DB.RouteOptions? = 
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
 @_disfavoredOverload
-public func sublimate<E: ResponseEncodable, User: Authenticatable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
+public func sublimate<E: ResponseEncodable, User: Authenticatable>(in options: CO₂.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> E) -> (Request) throws -> EventLoopFuture<Response> {
     return { rq in
         let user = try rq.auth.require(User.self)
         return options.go(on: rq) { db in
@@ -131,7 +124,7 @@ public func sublimate<E: ResponseEncodable, User: Authenticatable>(in options: C
 
  - Parameter in: Provide `.transaction` to have this route contained in a database transaction.
  */
-public func sublimate<User: Authenticatable>(in options: CO₂DB.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
+public func sublimate<User: Authenticatable>(in options: CO₂.RouteOptions? = nil, use closure: @escaping (CO₂, User) throws -> Void) -> (Request) throws -> EventLoopFuture<HTTPResponseStatus> {
     return { rq in
         let user = try rq.auth.require(User.self)
         return options.go(on: rq) { db in
@@ -141,15 +134,15 @@ public func sublimate<User: Authenticatable>(in options: CO₂DB.RouteOptions? =
     }
 }
 
-public extension CO₂DB {
-    /// Provides `.transaction`
+/// Provides `.transaction`
+public extension CO₂ {
     enum RouteOptions {
         /// Is `.transaction`
         case transaction
     }
 }
 
-private extension Optional where Wrapped == CO₂DB.RouteOptions {
+private extension Optional where Wrapped == CO₂.RouteOptions {
     @inline(__always)
     func go<Value>(on rq: Request, body: @escaping (FluentKit.Database) throws -> Value) -> EventLoopFuture<Value> {
         switch self {

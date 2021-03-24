@@ -1,5 +1,4 @@
-import struct Vapor.Abort
-import Fluent
+import FluentKit
 
 public extension Array where Element: Model {
     func delete(on subl: CO₂DB) throws {
@@ -25,13 +24,14 @@ public extension Model {
         return nil
     }
 
-    static func find(or _: CO₂.QueryOptions, id: IDValue?, on subl: CO₂DB, file: String = #file, line: UInt = #line) throws -> Self {
+    static func find(or _: CO₂QueryOptions, id: IDValue?, on subl: CO₂DB, file: StaticString = #file, line: UInt = #line) throws -> Self {
         if let id = id {
-            return try find(id, on: subl.db)
-                .unwrap(or: Abort(.notFound, reason: "\(type(of: self)) not found for ID: \(id)", file: file, line: line))
-                .wait()
+            guard let model = try find(id, on: subl) else {
+                throw SublimateAbort(.notFound, reason: "\(type(of: self)) not found for ID: \(id)", file: file, line: line)
+            }
+            return model
         }
-        throw Abort(.badRequest, reason: "\(type(of: self)) not found for `nil` ID", file: file, line: line)
+        throw SublimateAbort(.badRequest, reason: "\(type(of: self)) not found for `nil` ID", file: file, line: line)
     }
 
     @discardableResult
@@ -70,7 +70,7 @@ public extension ParentProperty {
         .init(query(on: subl.db))
     }
 
-    func get(on subl: CO₂DB, file: String = #file, line: UInt = #line) throws -> To {
+    func get(on subl: CO₂DB, file: StaticString = #file, line: UInt = #line) throws -> To {
         try query(on: subl).first(or: .abort, file: file, line: line)
     }
 

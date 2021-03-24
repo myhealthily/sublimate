@@ -1,8 +1,4 @@
-import class Vapor.Request
-import struct Vapor.Abort
-import FluentKit
 import FluentSQL
-import SQLKit
 
 /// Sublimate utility object wrapping a SQLKit `SQLRawBuilder` object.
 public final class SublimateRawBuilder {
@@ -31,25 +27,25 @@ public final class SublimateRawBuilder {
 
     /// Collects the first raw output and returns it.
     @inlinable
-    public func first(or: CO₂.QueryOptions, file: String = #file, line: UInt = #line) throws -> SQLRow {
+    public func first(or: CO₂QueryOptions, file: StaticString = #file, line: UInt = #line) throws -> SQLRow {
         guard let foo = try kernel.first().wait() else {
-            throw Abort(.notFound, reason: "Rows not found for this input.", file: file, line: line)
+            throw SublimateAbort(.notFound, reason: "Rows not found for this input.", file: file, line: line)
         }
         return foo
     }
 
     @inlinable
-    public func first<T: Decodable>(or: CO₂.QueryOptions, decoding model: T.Type, file: String = #file, line: UInt = #line) throws -> T {
+    public func first<T: Decodable>(or: CO₂QueryOptions, decoding model: T.Type, file: StaticString = #file, line: UInt = #line) throws -> T {
         guard let foo = try kernel.first(decoding: model).wait() else {
-            throw Abort(.notFound, reason: "Cannot decode `\(T.self)` for this input.", file: file, line: line)
+            throw SublimateAbort(.notFound, reason: "Cannot decode `\(T.self)` for this input.", file: file, line: line)
         }
         return foo
     }
 
     @inlinable
-    public func first<Model>(or: CO₂.QueryOptions, decoding model: Model.Type, file: String = #file, line: UInt = #line) throws -> Model where Model: FluentKit.Model {
+    public func first<Model>(or: CO₂QueryOptions, decoding model: Model.Type, file: StaticString = #file, line: UInt = #line) throws -> Model where Model: FluentKit.Model {
         guard let foo = try kernel.first(decoding: model).wait() else {
-            throw Abort(.notFound, reason: "\(Model.self)s not found for this input.", file: file, line: line)
+            throw SublimateAbort(.notFound, reason: "\(Model.self)s not found for this input.", file: file, line: line)
         }
         return foo
     }
@@ -77,9 +73,9 @@ public final class SublimateRawBuilder {
 }
 
 public extension CO₂DB {
-    func raw(sql: SQLQueryString, file: String = #file, line: UInt = #line) throws -> SublimateRawBuilder {
+    func raw(sql: SQLQueryString, file: StaticString = #file, line: UInt = #line) throws -> SublimateRawBuilder {
         guard let db = db as? SQLDatabase else {
-            throw Abort(.internalServerError, reason: "Cannot do raw SQL queries on non-SQLDatabase", file: file, line: line)
+            throw SublimateAbort(.internalServerError, reason: "Cannot do raw SQL queries on non-SQLDatabase", file: file, line: line)
         }
         return SublimateRawBuilder(kernel: db.raw(sql))
     }
