@@ -23,14 +23,14 @@ public extension Collection {
      - Note: the order of the results will match the order of the EventLoopFutures in the input `Collection`.
      - Note: They must be the same type, a strategy for waiting on mixed futures is to `Void` them all and then work with the original futures
      */
-    func flatten<Value>(on db: CO₂Protocol) throws -> [Value] where Element == EventLoopFuture<Value> {
-        try EventLoopFuture.whenAllSucceed(Array(self), on: db.eventLoop).wait()
+    func flatten<Value>(on subl: CO₂Protocol) throws -> [Value] where Element == EventLoopFuture<Value> {
+        try EventLoopFuture.whenAllSucceed(Array(self), on: subl.eventLoop).wait()
     }
 }
 
 public extension Collection where Element == EventLoopFuture<Void> {
     /// Waits on a `Collection` of `EventLoopFuture<Void>`
-    func flatten(on db: CO₂Protocol) throws {
-        _ = try EventLoopFuture.whenAllSucceed(Array(self), on: db.eventLoop).wait()
+    func flatten(on subl: CO₂Protocol) throws {
+        _ = try EventLoopFuture.whenAllSucceed(Array(self), on: subl.eventLoop).wait()
     }
 }

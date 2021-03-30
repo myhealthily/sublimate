@@ -3,14 +3,9 @@ import protocol FluentKit.Database
 @_exported import SublimateNIO
 import Vapor
 
-public struct CO₂: CO₂Protocol, CO₂DB {
+public struct CO₂: CO₂DB {
     public let rq: Request
     public let db: Database
-
-    init(rq: Request, db: Database) {
-        self.rq = rq
-        self.db = db
-    }
 
     public var eventLoop: EventLoop { rq.eventLoop }
 
