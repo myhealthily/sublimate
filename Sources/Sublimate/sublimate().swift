@@ -137,10 +137,9 @@ public func sublimate<User: Authenticatable>(in options: CO₂.RouteOptions? = n
 
 /// Provides `.transaction`
 public extension CO₂ {
-    enum RouteOptions {
-        /// Is `.transaction`
-        case transaction
-    }
+    /// Is `.transaction`
+    typealias RouteOptions = CO₂RouteOptions
+    // ^^ provided for API back-compat
 }
 
 private extension Optional where Wrapped == CO₂.RouteOptions {
