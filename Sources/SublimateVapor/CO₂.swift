@@ -7,6 +7,11 @@ public struct CO₂: CO₂DB {
     public let rq: Request
     public let db: Database
 
+    public init(rq: Request, db: Database) {
+        self.rq = rq
+        self.db = db
+    }
+
     public var eventLoop: EventLoop { rq.eventLoop }
 
     /// Provided for API compatability

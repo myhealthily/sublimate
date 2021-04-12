@@ -11,22 +11,31 @@ let package = Package(
             name: name,
             targets: [name]),
         .library(
+            name: "\(name)Vapor",
+            targets: ["\(name)Vapor"]),
+        .library(
             name: "\(name)FluentKit",
             targets: ["\(name)FluentKit"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/vapor/fluent", from: "4.0.0"),
+        .package(url: "https://github.com/apple/swift-nio", from: "2.0.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.3.0"),
         .package(url: "https://github.com/vapor/fluent-kit", from: "1.7.0"),
-        .package(url: "https://github.com/vapor/fluent", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0"),
-        .package(url: "https://github.com/apple/swift-nio", from: "2.0.0"),
     ],
     targets: [
         .target(
             name: name,
             dependencies: [
+                .target(name: "\(name)Vapor"),
                 .product(name: "Fluent", package: "fluent"),
+            ]),
+        .target(
+            name: "\(name)Vapor",
+            dependencies: [
                 .target(name: "\(name)FluentKit"),
+                .product(name: "Vapor", package: "vapor"),
             ]),
         .target(
             name: "\(name)FluentKit",

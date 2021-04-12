@@ -1,4 +1,5 @@
 import protocol FluentKit.Database
+@_exported import SublimateVapor
 import Vapor
 
 /**

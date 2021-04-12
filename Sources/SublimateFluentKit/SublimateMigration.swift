@@ -23,7 +23,7 @@ private struct Wrapper: Migration {
     func prepare(on db: Database) -> EventLoopFuture<Void> {
         db.transaction { db in
             DispatchQueue.global().async(on: db.eventLoop) {
-                try self.sm.prepare(on: CO₂DBStruct(db: db))
+                try self.sm.prepare(on: ConcreteCO₂DB(db: db))
             }
         }
     }
@@ -31,7 +31,7 @@ private struct Wrapper: Migration {
     func revert(on db: Database) -> EventLoopFuture<Void> {
         db.transaction { db in
             DispatchQueue.global().async(on: db.eventLoop) {
-                try self.sm.revert(on: CO₂DBStruct(db: db))
+                try self.sm.revert(on: ConcreteCO₂DB(db: db))
             }
         }
     }
