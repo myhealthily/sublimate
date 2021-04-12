@@ -37,6 +37,8 @@ public extension CO₂ {
     @inlinable var application: Application { rq.application }
     /// - Returns: Returns the Vapor `Request`’s `Body`
     @inlinable var body: Vapor.Request.Body { rq.body }
+    /// - Returns: Returns the Vapor `Application`’s `Environment`
+    @inlinable var environment: Environment { rq.application.environment }
 
     /// Returns the current `Session` or creates one.
     ///
