@@ -220,7 +220,7 @@ We provide `SublimateModelMiddleware`.
 ```swift
 package.dependencies.append(.package(
     name: "Sublimate",
-    url: "https://github.com/candor/sublimate.git",
+    url: "https://github.com/myhealthily/sublimate.git",
     from: "1.0.0"
 ))
 ```
@@ -278,8 +278,8 @@ Sublimate is as thread-safe as Vapor; see their guidelines.
 
 [badge-platforms]: https://img.shields.io/badge/platforms-macOS%20%7C%20Linux-lightgrey.svg
 [badge-languages]: https://img.shields.io/badge/swift-5.2%20%7C%205.3-orange.svg
-[badge-ci]: https://github.com/candor/sublimate/workflows/CI/badge.svg
-[badge-codecov]: https://codecov.io/gh/candor/sublimate/branch/master/graph/badge.svg
-[ci]: https://github.com/candor/sublimate/actions
-[codecov]: https://codecov.io/gh/candor/sublimate
-[metrics]: https://github.com/candor/sublimate/actions?query=workflow%3A%22Performance+Metrics%22
+[badge-ci]: https://github.com/myhealthily/sublimate/workflows/CI/badge.svg
+[badge-codecov]: https://codecov.io/gh/myhealthily/sublimate/branch/master/graph/badge.svg
+[ci]: https://github.com/myhealthily/sublimate/actions
+[codecov]: https://codecov.io/gh/myhealthily/sublimate
+[metrics]: https://github.com/myhealthily/sublimate/actions?query=workflow%3A%22Performance+Metrics%22
