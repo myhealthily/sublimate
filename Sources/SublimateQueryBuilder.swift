@@ -326,4 +326,9 @@ public extension SublimateQueryBuilder {
     {
         try kernel.max(key).wait()
     }
+
+    @inlinable
+    func withDeleted() -> Self {
+        .init(kernel.withDeleted())
+    }
 }

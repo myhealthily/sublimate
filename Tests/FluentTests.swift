@@ -379,6 +379,20 @@ final class FluentTests: CO₂TestCase {
             XCTAssertEqual(try sun.$planets.all(on: db), self.input.first(where: { $0.0.name == "The Sun" })!.1 + [mars])
         }.wait()
     }
+
+    func testWithDeleted() throws {
+        try db.sublimate { db in
+            let sun = try Star.query(on: db).filter(\.$name == "The Sun").first()!
+            XCTAssertEqual(sun, self.input.first(where: { $0.0.name == "The Sun" })!.0)
+            try sun.delete(on: db)
+
+            let noSun = try Star.query(on: db).filter(\.$name == "The Sun").first()
+            XCTAssertNil(noSun)
+
+            let deletedSun = try Star.query(on: db).filter(\.$name == "The Sun").withDeleted().first()!
+            XCTAssertNotNil(deletedSun.deletedAt)
+        }.wait()
+    }
 }
 
 private final class Star: Model {
@@ -386,6 +400,7 @@ private final class Star: Model {
     @Field(key: "name") var name: String
     @OptionalField(key: "distance") var distance: Double? // in km
     @Field(key: "mass") var mass: Double // in kg
+    @Timestamp(key: "deleted_at", on: .delete) var deletedAt: Date?
     @Children(for: \.$star) var planets: [Planet]
 
     init()
@@ -395,6 +410,7 @@ private final class Star: Model {
         self.name = name
         self.distance = distance
         self.mass = mass
+        self.deletedAt = nil
     }
 
     static let schema = "stars"
@@ -436,6 +452,7 @@ private struct Migration: SublimateMigration {
             .field("name", .string, .required)
             .field("distance", .double)
             .field("mass", .double)
+            .field("deleted_at", .date)
             .create()
         try db.schema(Planet.schema)
             .id()
