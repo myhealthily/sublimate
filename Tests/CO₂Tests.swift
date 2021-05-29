@@ -213,15 +213,11 @@ private struct Encodable: ResponseEncodable {
         struct Encodable: Swift.Encodable {
             let foo: Bool
         }
-        do {
-            let data = try JSONEncoder().encode(Encodable(foo: foo))
-            var headers = HTTPHeaders()
-            headers.add(name: .contentType, value: "application/json")
-            let rsp = Response(status: .ok, headers: headers, body: .init(data: data))
-            return request.eventLoop.makeSucceededFuture(rsp)
-        } catch {
-            return request.eventLoop.makeFailedFuture(error)
-        }
+        let data = try! JSONEncoder().encode(Encodable(foo: foo))
+        var headers = HTTPHeaders()
+        headers.add(name: .contentType, value: "application/json")
+        let rsp = Response(status: .ok, headers: headers, body: .init(data: data))
+        return request.eventLoop.makeSucceededFuture(rsp)
     }
 
     let foo: Bool
