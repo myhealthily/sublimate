@@ -187,12 +187,24 @@ extension CO₂Tests {
             try isOK($0)
         })
     }
+
+    func testRedirect() throws {
+        app.routes.get("foo", use: sublimate(in: .transaction) { rq -> Response in
+            rq.redirect(to: URL(string: "/bar")!)
+        })
+
+        try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: { rsp -> Void in
+            XCTAssertEqual(rsp.status, .seeOther)
+            XCTAssertEqual(rsp.headers[.location], ["/bar"])
+            return
+        })
+    }
 }
 
 extension CO₂Tests {
     // for code coverage
     func testProperties() throws {
-        app.routes.get("foo", use: sublimate(in: .transaction) { rq in
+        app.routes.grouped(app.sessions.middleware).get("foo", use: sublimate(in: .transaction) { rq in
             _ = rq.auth
             _ = rq.headers
             _ = rq.content
@@ -202,6 +214,10 @@ extension CO₂Tests {
             _ = rq.query
             _ = rq.logger
             _ = rq.application
+            _ = rq.body
+            _ = rq.environment
+            _ = rq.session
+            _ = ConcreteCO₂DB(db: rq.db).eventLoop
         })
 
         try app.testable(method: .inMemory).test(.GET, "foo", afterResponse: isOK)

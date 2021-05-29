@@ -46,6 +46,14 @@ final class FluentTests: CO₂TestCase {
         }.wait()
     }
 
+    func testAllTransaction() throws {
+        try db.sublimate(in: .transaction) { db in
+            XCTAssertEqual(
+                try Star.query(on: db).all(),
+                self.input.map(\.0))
+        }.wait()
+    }
+
     func testFilter() throws {
         try db.sublimate { db in
             XCTAssertEqual(
