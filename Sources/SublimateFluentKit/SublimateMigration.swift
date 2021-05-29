@@ -1,6 +1,5 @@
+import FluentKit
 import Dispatch
-import Fluent
-import SQLKit
 
 public protocol SublimateMigration {
     func prepare(on db: CO₂DB) throws
@@ -24,7 +23,7 @@ private struct Wrapper: Migration {
     func prepare(on db: Database) -> EventLoopFuture<Void> {
         db.transaction { db in
             DispatchQueue.global().async(on: db.eventLoop) {
-                try self.sm.prepare(on: .init(db: db))
+                try self.sm.prepare(on: ConcreteCO₂DB(db: db))
             }
         }
     }
@@ -32,7 +31,7 @@ private struct Wrapper: Migration {
     func revert(on db: Database) -> EventLoopFuture<Void> {
         db.transaction { db in
             DispatchQueue.global().async(on: db.eventLoop) {
-                try self.sm.revert(on: .init(db: db))
+                try self.sm.revert(on: ConcreteCO₂DB(db: db))
             }
         }
     }

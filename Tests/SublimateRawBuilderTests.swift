@@ -1,4 +1,5 @@
 @testable import Sublimate
+@testable import SublimateFluentKit
 import FluentKit
 import XCTFluent
 import XCTVapor
@@ -129,7 +130,7 @@ private struct Row: Decodable {
 private extension TestDatabase {
     func sublimate<T>(use closure: @escaping (CO₂DB) throws -> T) -> EventLoopFuture<T> {
         DispatchQueue.global().async(on: db.eventLoop) {
-            try closure(CO₂DB(db: self.db))
+            try closure(ConcreteCO₂DB(db: self.db))
         }
     }
 }

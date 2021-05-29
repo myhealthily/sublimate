@@ -1,11 +1,4 @@
-import struct Vapor.Abort
-import Fluent
-
-public extension CO₂ {
-    enum QueryOptions {
-        case abort
-    }
-}
+import FluentKit
 
 public struct SublimateQueryBuilder<Model: FluentKit.Model> {
     // `public` so we can be inlinable
@@ -118,16 +111,16 @@ public extension SublimateQueryBuilder {
         return nil
     }
 
-    func first(or _: CO₂.QueryOptions? = nil, file: String = #file, line: UInt = #line) throws -> Model {
+    func first(or _: CO₂QueryOptions? = nil, file: StaticString = #file, line: UInt = #line) throws -> Model {
         guard let foo = try kernel.first().wait() else {
-            throw Abort(.notFound, reason: "\(Model.self)s not found for this input.", file: file, line: line)
+            throw SublimateAbort(.notFound, reason: "\(Model.self)s not found for this input.", file: file, line: line)
         }
         return foo
     }
 
-    func first<With: FluentKit.Model>(or _: CO₂.QueryOptions, with other: With.Type, file: String = #file, line: UInt = #line) throws -> (Model, With) {
+    func first<With: FluentKit.Model>(or _: CO₂QueryOptions, with other: With.Type, file: StaticString = #file, line: UInt = #line) throws -> (Model, With) {
         guard let foo = try kernel.first().wait() else {
-            throw Abort(.notFound, reason: "\(Model.self)s not found for this input.", file: file, line: line)
+            throw SublimateAbort(.notFound, reason: "\(Model.self)s not found for this input.", file: file, line: line)
         }
         let bar = try foo.joined(other)
         return (foo, bar)
@@ -154,6 +147,12 @@ public extension SublimateQueryBuilder {
     @inlinable
     func with<Relation>(_ relationKey: KeyPath<Model, Relation>) -> Self where Relation: EagerLoadable, Relation.From == Model {
         kernel.with(relationKey)
+        return self
+    }
+
+    @inlinable
+    func withDeleted() -> Self {
+        _ = kernel.withDeleted()
         return self
     }
 }
@@ -325,10 +324,5 @@ public extension SublimateQueryBuilder {
             Field.Model == Model
     {
         try kernel.max(key).wait()
-    }
-
-    @inlinable
-    func withDeleted() -> Self {
-        .init(kernel.withDeleted())
     }
 }
